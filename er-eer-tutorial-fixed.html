@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entity–Relationship Modeling: A Complete Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F2EC;
+    --paper-raised:#FBFBF7;
+    --ink:#1E241F;
+    --ink-soft:#4A5248;
+    --rule:#CBCDBF;
+    --forest:#2F6657;
+    --forest-deep:#1F473C;
+    --brick:#9C4530;
+    --gold:#A9822F;
+    --box-def:#E8EDE6;
+    --box-mistake:#F4E7E1;
+    --box-question:#EAE7F1;
+    --shape-line:#22301F;
+    --shape-fill:#FFFFFF;
+    --shape-fill-dim:#F4F2E9;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size:18px;
+    line-height:1.65;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:0 24px 120px; }
+
+  .cover{ max-width:920px; margin:0 auto; padding:90px 24px 60px; border-bottom:1px solid var(--rule); }
+  .cover .kicker{ color:var(--forest-deep); font-size:16px; font-style:italic; margin:0 0 14px; }
+  .cover h1{ font-size:52px; line-height:1.08; margin:0 0 18px; font-weight:600; letter-spacing:-0.5px; max-width:16ch; }
+  .cover p.lede{ max-width:60ch; font-size:20px; color:var(--ink-soft); margin:0 0 34px; }
+  .cover .rule-ornament{ width:64px; height:3px; background:var(--gold); margin:0 0 30px; }
+  .cover .stack{ display:flex; gap:40px; flex-wrap:wrap; font-size:15px; color:var(--ink-soft); }
+  .cover .stack strong{ display:block; color:var(--ink); font-size:16px; font-weight:600; }
+
+  .toc{ max-width:760px; margin:56px auto 0; padding:0 24px 56px; border-bottom:1px solid var(--rule); }
+  .toc h2{ font-size:22px; margin-bottom:18px; }
+  .toc ol{ list-style:none; margin:0; padding:0; counter-reset:toc; }
+  .toc li{ counter-increment:toc; display:flex; gap:14px; padding:9px 0; border-bottom:1px dotted var(--rule); }
+  .toc li:last-child{ border-bottom:none; }
+  .toc li::before{ content: counter(toc, decimal-leading-zero); color:var(--forest); font-weight:600; min-width:2ch; }
+  .toc a{ color:var(--ink); text-decoration:none; border-bottom:1px solid transparent; }
+  .toc a:hover{ border-bottom-color:var(--forest); }
+
+  section.chapter{ max-width:760px; margin:0 auto; padding:64px 24px 0; }
+  section.chapter.wide-figures{ max-width:960px; }
+  .chapter-label{ font-size:15px; font-style:italic; color:var(--forest-deep); margin:0 0 6px; }
+  h2.chapter-title{ font-size:34px; margin:0 0 28px; font-weight:600; border-bottom:3px solid var(--forest); padding-bottom:14px; }
+  h3{ font-size:23px; margin:44px 0 14px; font-weight:600; color:var(--forest-deep); }
+  h4{ font-size:19px; margin:28px 0 10px; font-weight:600; }
+  p{ margin:0 0 18px; }
+  ul, ol{ margin:0 0 18px; padding-left:26px; }
+  li{ margin-bottom:8px; }
+  strong{ font-weight:600; }
+  em.term{ font-style:italic; color:var(--forest-deep); font-weight:600; }
+  code{ font-family:"Source Serif 4", Georgia, serif; font-style:italic; background:var(--shape-fill-dim); padding:1px 6px; border-radius:3px; }
+
+  .box{ margin:28px 0; padding:20px 24px; border-radius:4px; border-left:5px solid var(--forest); }
+  .box .box-label{ font-weight:600; color:var(--forest-deep); display:block; margin-bottom:8px; font-size:15px; }
+  .box.definition{ background:var(--box-def); border-left-color:var(--forest); }
+  .box.question{ background:var(--box-question); border-left-color:#6E5FA0; }
+  .box.question .box-label{ color:#4E3F82; }
+  .box.mistake{ background:var(--box-mistake); border-left-color:var(--brick); }
+  .box.mistake .box-label{ color:var(--brick); }
+  .box p:last-child{ margin-bottom:0; }
+
+  .wrongright{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0 4px; }
+  .wrongright > div{ padding:14px 16px; border-radius:4px; font-size:16px; }
+  .wrongright .wrong{ background:#F6E4DD; border:1px solid #E0B7A7; }
+  .wrongright .right{ background:#E3EEE3; border:1px solid #B9D3B7; }
+  .wrongright .tag{ font-weight:600; display:block; margin-bottom:6px; }
+  .wrongright .wrong .tag{ color:#8A3B23; }
+  .wrongright .right .tag{ color:var(--forest-deep); }
+  @media (max-width:600px){ .wrongright{ grid-template-columns:1fr; } }
+
+  .legend{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:22px; margin:30px 0 10px; }
+  .legend-item{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:6px; padding:20px 14px; text-align:center; }
+  .legend-item .shape-holder{ height:64px; display:flex; align-items:center; justify-content:center; margin-bottom:12px; }
+  .legend-item .name{ font-weight:600; font-size:15.5px; margin-bottom:4px; }
+  .legend-item .desc{ font-size:14px; color:var(--ink-soft); line-height:1.4; }
+
+  .sh-rect{ width:100px; height:46px; background:var(--shape-fill); border:2.5px solid var(--shape-line); display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .sh-rect.weak{ box-shadow: 0 0 0 4px var(--shape-fill), 0 0 0 6px var(--shape-line); }
+  .sh-oval{ width:96px; height:52px; background:var(--shape-fill); border:2.5px solid var(--shape-line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; text-align:center; padding:2px; }
+  .sh-oval.key{ text-decoration:underline; text-decoration-thickness:2px; }
+  .sh-oval.pkey{ text-decoration:underline; text-decoration-style:dashed; }
+  .sh-oval.derived{ border-style:dashed; }
+  .sh-oval.multi{ box-shadow:0 0 0 4px var(--shape-fill), 0 0 0 6.5px var(--shape-line); }
+  .sh-diamond{ width:88px; height:56px; background:var(--shape-fill); border:2.5px solid var(--shape-line); transform:rotate(45deg); display:flex; align-items:center; justify-content:center; }
+  .sh-diamond span{ transform:rotate(-45deg); font-size:11.5px; text-align:center; }
+  .sh-diamond.identifying{ box-shadow:0 0 0 4px var(--shape-fill), 0 0 0 6.5px var(--shape-line); }
+  .sh-tri{ width:0; height:0; border-left:34px solid transparent; border-right:34px solid transparent; border-top:44px solid var(--shape-line); position:relative; }
+  .sh-tri span{ position:absolute; top:16px; left:-8px; color:#fff; font-weight:700; font-size:14px; }
+  .sh-circle-u{ width:56px; height:56px; border-radius:50%; background:var(--shape-fill); border:2.5px solid var(--shape-line); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px; }
+
+  figure{ margin:30px 0; }
+  figure svg{ width:100%; height:auto; display:block; }
+  figure.diagram{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:8px; padding:22px; }
+  figcaption{ font-size:15px; color:var(--ink-soft); font-style:italic; margin-top:14px; text-align:center; }
+
+  table{ width:100%; border-collapse:collapse; margin:24px 0; font-size:16px; }
+  th, td{ text-align:left; padding:11px 14px; border-bottom:1px solid var(--rule); vertical-align:top; }
+  th{ background:var(--forest); color:#fff; font-weight:600; }
+  tr:nth-child(even) td{ background:var(--paper-raised); }
+  .cheat-shape-cell{ width:70px; text-align:center; }
+
+  .mistake-list{ counter-reset:mistake; }
+  .mistake-item{ counter-increment:mistake; margin:28px 0; padding:22px 24px; background:var(--box-mistake); border-left:5px solid var(--brick); border-radius:4px; }
+  .mistake-item h4{ margin:0 0 10px; color:var(--brick); font-size:19px; }
+  .mistake-item h4::before{ content: "Mistake " counter(mistake) " — "; }
+  .mistake-item p:last-child{ margin-bottom:0; }
+
+  .practice-item{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:6px; padding:18px 22px; margin-bottom:16px; }
+  .practice-item .num{ display:inline-block; background:var(--forest); color:#fff; width:26px; height:26px; border-radius:50%; text-align:center; line-height:26px; font-size:14px; margin-right:10px; font-family:Georgia, serif; }
+
+  hr.divider{ border:none; border-top:1px solid var(--rule); margin:60px 0 0; }
+  .endnote{ max-width:760px; margin:64px auto 0; padding:0 24px 70px; color:var(--ink-soft); font-size:15px; text-align:center; font-style:italic; }
+
+  .venn-caption{ font-size:14px; text-align:center; color:var(--ink-soft); margin-top:6px; }
+  .venn-row{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:600px){ .venn-row{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <p class="kicker">A course in conceptual database design</p>
+  <h1>Entity–Relationship Modeling, from First Principles to the Enhanced ER Model</h1>
+  <div class="rule-ornament"></div>
+  <p class="lede">A complete, self-contained walkthrough of ER and EER diagrams — every symbol, every rule, worked examples from scratch, and the specific mistakes that trip up almost every student the first time they draw one.</p>
+  <div class="stack">
+    <div><strong>Notation used</strong>Chen's notation throughout</div>
+    <div><strong>Level</strong>Assumes no prior database background</div>
+    <div><strong>Format</strong>14 chapters, worked examples, and a symbol reference</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#ch1">Why we draw ER diagrams at all</a></li>
+    <li><a href="#ch2">Entities: the nouns of your system</a></li>
+    <li><a href="#ch3">Attributes: describing an entity, precisely</a></li>
+    <li><a href="#ch4">Relationships: binary and ternary</a></li>
+    <li><a href="#ch5">Cardinality and participation, explained slowly</a></li>
+    <li><a href="#ch6">Weak entities and identifying relationships</a></li>
+    <li><a href="#ch7">Worked example: a Library Management System</a></li>
+    <li><a href="#ch8">Enhanced ER: specialization and generalization</a></li>
+    <li><a href="#ch9">Constraints: disjoint, overlapping, total, partial</a></li>
+    <li><a href="#ch10">Aggregation</a></li>
+    <li><a href="#ch11">Union types (category): subclass of several superclasses</a></li>
+    <li><a href="#ch12">Worked example: a full EER diagram</a></li>
+    <li><a href="#ch13">Mistakes almost every beginner makes</a></li>
+    <li><a href="#ch14">Symbol reference and practice</a></li>
+  </ol>
+</nav>
+
+<!-- ======================= CHAPTER 1 ======================= -->
+<section class="chapter" id="ch1">
+  <p class="chapter-label">Chapter One</p>
+  <h2 class="chapter-title">Why We Draw ER Diagrams At All</h2>
+
+  <p>Before you learn a single symbol, it is worth understanding the problem an ER diagram is trying to solve — because every rule in this course exists to serve that purpose, and once the purpose is clear, the rules stop feeling arbitrary.</p>
+
+  <p>Imagine you have been asked to build the database for a university. You could, in theory, sit down and start writing <code>CREATE TABLE</code> statements immediately. Some students do exactly this — and it almost always produces a database with duplicated data, missing relationships, and awkward redesigns three weeks later. The reason is simple: tables are an <em class="term">implementation</em> detail. Before you decide how to store something, you first need to decide, in plain language, <em>what</em> exists in your system and <em>how those things relate to each other</em>. That decision is made once, carefully, on paper — and that is exactly what an ER diagram is for.</p>
+
+  <p>Database design is traditionally taught in three stages:</p>
+  <ol>
+    <li><strong>Conceptual design</strong> — What real-world things and relationships exist? This is where the ER/EER diagram lives.</li>
+    <li><strong>Logical design</strong> — How do we translate that into tables, with primary keys and foreign keys, following normalization rules?</li>
+    <li><strong>Physical design</strong> — How is it actually stored: indexes, data types, partitioning, and so on?</li>
+  </ol>
+
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p>An <strong>Entity-Relationship (ER) Diagram</strong> is a conceptual-level diagram that models the data requirements of a system using three ingredients: <em>entities</em> (things), <em>attributes</em> (facts about those things), and <em>relationships</em> (associations between things) — deliberately without reference to how any of it will eventually be stored.</p>
+  </div>
+
+  <p>This separation directly explains the very first mistake we will discuss in Chapter 13: students who already know a bit about databases often can't resist drawing primary keys and foreign keys onto their ER diagram. But foreign keys are a logical-design concept — they don't exist yet at the conceptual stage.</p>
+
+  <p>This course uses <strong>Chen's notation</strong> throughout — the original notation proposed by Peter Chen in 1976, and still the most widely taught version because each concept gets its own distinct, unambiguous shape: <strong>rectangle for entity, oval for attribute, diamond for relationship.</strong></p>
+</section>
+
+<!-- ======================= CHAPTER 2 ======================= -->
+<section class="chapter" id="ch2">
+  <p class="chapter-label">Chapter Two</p>
+  <h2 class="chapter-title">Entities: The Nouns of Your System</h2>
+
+  <p>Start by reading through your requirements and circling every noun that represents a "thing" you need to store facts about. A useful test: if you can imagine a form or a spreadsheet row dedicated just to this thing, it is probably an entity.</p>
+
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p>An <strong>entity</strong> is a distinguishable real-world object or concept about which data is stored. An <strong>entity set</strong> (or entity type) is the collection of all entities of the same kind — for example, all students. A single occurrence, like "the student Riya Shah," is called an <strong>entity instance</strong>.</p>
+  </div>
+
+  <p>In Chen's notation, an entity is drawn as a plain rectangle with its name written inside.</p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="shape-holder"><div class="sh-rect">STUDENT</div></div>
+      <div class="name">Strong entity</div>
+      <div class="desc">A single rectangle. Has a key attribute that uniquely identifies it on its own.</div>
+    </div>
+    <div class="legend-item">
+      <div class="shape-holder"><div class="sh-rect weak">ORDER_ITEM</div></div>
+      <div class="name">Weak entity</div>
+      <div class="desc">Double-lined rectangle. Cannot be uniquely identified without its owner entity (Chapter 6).</div>
+    </div>
+  </div>
+
+  <div class="box question">
+    <span class="box-label">A question students often ask</span>
+    <p><strong>"How do I know if something should be an entity, or just an attribute of another entity?"</strong> Ask whether the "thing" in question (a) has attributes of its own that you care about, or (b) could ever need to relate to more than one instance of something else. If a department only ever needs a name, it can stay as an attribute of <code>EMPLOYEE</code>. The moment you also need a department's location, its budget, and the fact that multiple employees belong to the same department, it deserves to be a full entity, <code>DEPARTMENT</code>. We revisit this exact test in Mistake 2, with a worked comparison.</p>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 3 ======================= -->
+<section class="chapter" id="ch3">
+  <p class="chapter-label">Chapter Three</p>
+  <h2 class="chapter-title">Attributes: Describing an Entity, Precisely</h2>
+
+  <p>Once you have your entities, the next question is: what do you need to know about each one? Every fact you attach to an entity is an attribute, drawn as an oval connected by a line to its entity.</p>
+
+  <h3>Simple (atomic) attributes</h3>
+  <p>A <em class="term">simple attribute</em> cannot be meaningfully broken down further. <code>Age</code>, <code>Gender</code>, and <code>Salary</code> are typical examples, drawn as a single plain oval.</p>
+
+  <h3>Composite attributes</h3>
+  <p>A <em class="term">composite attribute</em> is made up of smaller sub-parts that are each independently meaningful — <code>Name</code> as <code>First_Name</code> plus <code>Last_Name</code>. It is drawn as an oval with smaller ovals branching off it.</p>
+
+  <h3>Key attributes</h3>
+  <p>A <em class="term">key attribute</em> uniquely identifies every instance of the entity. Drawn like a simple oval, but with the name <u>underlined</u>. Every strong entity must have at least one.</p>
+
+  <h3>Multivalued attributes</h3>
+  <p>A <em class="term">multivalued attribute</em> can hold more than one value for a single entity instance — a student's multiple phone numbers. Drawn as a <strong>double oval</strong>.</p>
+
+  <h3>Derived attributes</h3>
+  <p>A <em class="term">derived attribute</em> is computed from other attributes rather than stored directly — <code>Age</code> derived from <code>Date_of_Birth</code>. Drawn as a <strong>dashed oval</strong>.</p>
+
+  <h3>Partial keys (for weak entities)</h3>
+  <p>Covered fully in Chapter 6: a <em class="term">partial key</em> distinguishes entities only within their owner's group. Drawn as an oval with a <em>dashed underline</em>.</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval">Age</div></div><div class="name">Simple attribute</div><div class="desc">A single plain oval.</div></div>
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval">Name</div></div><div class="name">Composite attribute</div><div class="desc">Branches into smaller sub-attribute ovals.</div></div>
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval key">Roll_No</div></div><div class="name">Key attribute</div><div class="desc">Underlined. Uniquely identifies each instance.</div></div>
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval multi">Phone</div></div><div class="name">Multivalued attribute</div><div class="desc">Double oval. Can hold more than one value.</div></div>
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval derived">Age</div></div><div class="name">Derived attribute</div><div class="desc">Dashed oval. Computed, not stored.</div></div>
+    <div class="legend-item"><div class="shape-holder"><div class="sh-oval pkey">Item_No</div></div><div class="name">Partial key</div><div class="desc">Dashed underline. Unique only within owner's group.</div></div>
+  </div>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+      <rect x="420" y="90" width="160" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="500" y="122" text-anchor="middle" font-size="15" font-family="Georgia, serif">STUDENT</text>
+      <line x1="420" y1="117" x2="250" y2="117" stroke="#22301F" stroke-width="2"/>
+      <ellipse cx="180" cy="117" rx="70" ry="32" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="180" y="122" text-anchor="middle" font-size="15" font-family="Georgia, serif">Name</text>
+      <line x1="130" y1="90" x2="90" y2="45" stroke="#22301F" stroke-width="2"/>
+      <line x1="230" y1="90" x2="270" y2="45" stroke="#22301F" stroke-width="2"/>
+      <ellipse cx="90" cy="35" rx="68" ry="28" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="90" y="40" text-anchor="middle" font-size="13.5" font-family="Georgia, serif">First_Name</text>
+      <ellipse cx="270" cy="35" rx="66" ry="28" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="270" y="40" text-anchor="middle" font-size="13.5" font-family="Georgia, serif">Last_Name</text>
+    </svg>
+    <figcaption>Fig. 3.1 — A composite attribute (Name) branching into First_Name and Last_Name, attached to STUDENT.</figcaption>
+  </figure>
+</section>
+
+<!-- ======================= CHAPTER 4 ======================= -->
+<section class="chapter wide-figures" id="ch4">
+  <p class="chapter-label">Chapter Four</p>
+  <h2 class="chapter-title">Relationships: Binary and Ternary</h2>
+
+  <p>A relationship expresses a meaningful association between entities. It is drawn as a diamond, connected by lines to every entity that participates, and labeled with a verb phrase.</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="shape-holder"><div class="sh-diamond"><span>enrolls in</span></div></div><div class="name">Relationship</div><div class="desc">A diamond connecting two or more entities.</div></div>
+  </div>
+
+  <h3>Relationships can have their own attributes</h3>
+  <p>A fact can belong to neither entity individually, but to the specific <em>pairing</em>. <code>Grade</code> in "a student enrolls in a course" belongs to the specific (student, course) combination, so it attaches to the diamond itself.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 620 200" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="70" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="95" y="102" text-anchor="middle" font-size="15" font-family="Georgia, serif">STUDENT</text>
+      <polygon points="290,60 350,97 290,134 230,97" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="93" text-anchor="middle" font-size="12" font-family="Georgia, serif">enrolls</text>
+      <text x="290" y="107" text-anchor="middle" font-size="12" font-family="Georgia, serif">in</text>
+      <line x1="170" y1="97" x2="230" y2="97" stroke="#22301F" stroke-width="2"/>
+      <rect x="450" y="70" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="525" y="102" text-anchor="middle" font-size="15" font-family="Georgia, serif">COURSE</text>
+      <line x1="350" y1="97" x2="450" y2="97" stroke="#22301F" stroke-width="2"/>
+      <ellipse cx="290" cy="167" rx="55" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="172" text-anchor="middle" font-size="13" font-family="Georgia, serif">Grade</text>
+      <line x1="290" y1="134" x2="290" y2="141" stroke="#22301F" stroke-width="2"/>
+    </svg>
+    <figcaption>Fig. 4.1 — Grade belongs to the relationship itself, not to STUDENT or COURSE alone.</figcaption>
+  </figure>
+
+  <h3>Degree of a relationship</h3>
+  <ul>
+    <li><strong>Unary (recursive)</strong> — an entity relates to another instance of itself, e.g. <code>EMPLOYEE</code> <em>supervises</em> <code>EMPLOYEE</code>.</li>
+    <li><strong>Binary</strong> — between two different entities. The overwhelming majority of relationships.</li>
+    <li><strong>Ternary</strong> — among three entities simultaneously, in a way that cannot be broken apart without losing meaning.</li>
+  </ul>
+
+  <h3>A properly drawn ternary relationship</h3>
+  <p>Example: a <code>SUPPLIER</code> supplies a <code>PART</code> for a specific <code>PROJECT</code>. This is one indivisible three-way fact — it tells you which supplier supplies which part <em>for which project</em>, information that would be lost if you only had three separate binary relationships. All three entities connect to a single diamond.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 430" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="320,135 395,190 320,245 245,190" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="320" y="185" text-anchor="middle" font-size="12.5" font-family="Georgia, serif">supplies</text>
+      <text x="320" y="200" text-anchor="middle" font-size="11" font-family="Georgia, serif">(ternary)</text>
+
+      <rect x="245" y="20" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="320" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">SUPPLIER</text>
+      <line x1="320" y1="75" x2="320" y2="135" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="20" y="320" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="95" y="352" text-anchor="middle" font-size="15" font-family="Georgia, serif">PART</text>
+      <line x1="245" y1="190" x2="130" y2="320" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="470" y="320" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="545" y="352" text-anchor="middle" font-size="15" font-family="Georgia, serif">PROJECT</text>
+      <line x1="395" y1="190" x2="510" y2="320" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="320" cy="300" rx="55" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="320" y="305" text-anchor="middle" font-size="12" font-family="Georgia, serif">Quantity</text>
+      <line x1="320" y1="245" x2="320" y2="276" stroke="#22301F" stroke-width="2"/>
+    </svg>
+    <figcaption>Fig. 4.2 — A ternary relationship: SUPPLIER, PART, and PROJECT all connect to one diamond, carrying the attribute Quantity (how much of that part this supplier supplies for that project).</figcaption>
+  </figure>
+
+  <div class="box question">
+    <span class="box-label">A common point of confusion</span>
+    <p>A ternary relationship is <strong>not</strong> the same as three binary relationships. Three separate pairs (Supplier–Part, Part–Project, Supplier–Project) cannot express which supplier supplies which part <em>for which specific project</em> — that combined fact only exists at the level of all three together. If your three entities don't genuinely need to be tied together simultaneously, prefer two binary relationships instead (Mistake 6, Chapter 13).</p>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 5 ======================= -->
+<section class="chapter" id="ch5">
+  <p class="chapter-label">Chapter Five</p>
+  <h2 class="chapter-title">Cardinality and Participation, Explained Slowly</h2>
+
+  <p>There are <strong>two separate questions</strong> being asked whenever you look at a relationship, and conflating them is the single biggest source of error:</p>
+  <ol>
+    <li><strong>Cardinality</strong> — "At most how many?"</li>
+    <li><strong>Participation constraint</strong> — "Is it required?"</li>
+  </ol>
+
+  <h3>5.1 — The three basic cardinalities</h3>
+
+  <h4>One-to-One (1:1)</h4>
+  <figure class="diagram">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="95" y="67" text-anchor="middle" font-size="15" font-family="Georgia, serif">EMPLOYEE</text>
+      <polygon points="290,25 350,62 290,99 230,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="66" text-anchor="middle" font-size="13" font-family="Georgia, serif">has</text>
+      <line x1="170" y1="62" x2="230" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="195" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">1</text>
+      <rect x="390" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="465" y="67" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">PARKING_SPOT</text>
+      <line x1="350" y1="62" x2="390" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="360" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">1</text>
+    </svg>
+    <figcaption>Fig. 5.1 — Each employee has exactly one parking spot, and each spot belongs to one employee.</figcaption>
+  </figure>
+
+  <h4>One-to-Many (1:N)</h4>
+  <figure class="diagram">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="35" width="160" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="90" y="67" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">DEPARTMENT</text>
+      <polygon points="300,25 360,62 300,99 240,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="300" y="66" text-anchor="middle" font-size="13" font-family="Georgia, serif">employs</text>
+      <line x1="170" y1="62" x2="240" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="200" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">1</text>
+      <rect x="400" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="475" y="67" text-anchor="middle" font-size="15" font-family="Georgia, serif">EMPLOYEE</text>
+      <line x1="360" y1="62" x2="400" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="372" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">N</text>
+    </svg>
+    <figcaption>Fig. 5.2 — One department employs many employees; each employee belongs to one department.</figcaption>
+  </figure>
+
+  <div class="box question">
+    <span class="box-label">The rule for reading the numbers correctly</span>
+    <p>The number written beside an entity describes how many instances of <em>that</em> entity pair with a single instance on the other side. Turn it into a sentence: "One ___ can have many ___." In Figure 5.2 that reads "one department employs many employees" — check your own diagrams the same way.</p>
+  </div>
+
+  <h4>Many-to-Many (M:N)</h4>
+  <figure class="diagram">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="95" y="67" text-anchor="middle" font-size="15" font-family="Georgia, serif">STUDENT</text>
+      <polygon points="290,25 350,62 290,99 230,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="58" text-anchor="middle" font-size="12" font-family="Georgia, serif">enrolls</text>
+      <text x="290" y="72" text-anchor="middle" font-size="12" font-family="Georgia, serif">in</text>
+      <line x1="170" y1="62" x2="230" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="196" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">M</text>
+      <rect x="390" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="465" y="67" text-anchor="middle" font-size="15" font-family="Georgia, serif">COURSE</text>
+      <line x1="350" y1="62" x2="390" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="362" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">N</text>
+    </svg>
+    <figcaption>Fig. 5.3 — A student can enroll in many courses, and a course can have many enrolled students.</figcaption>
+  </figure>
+
+  <h3>5.2 — Structural (min, max) notation — an alternative you'll also encounter</h3>
+  <p>Some textbooks write cardinality and participation together as <code>(min, max)</code> next to each entity: <code>max</code> is 1 or N as before, and <code>min</code> is 0 (optional) or 1 (mandatory). <code>(1,1)</code> means "exactly one, always required"; <code>(0,N)</code> means "zero to many, optional." It expresses the same two ideas as the separate-line style used in this course — the same Figure 5.4 relationship, drawn both ways, looks like this:</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="85" y="67" text-anchor="middle" font-size="13.5" font-family="Georgia, serif">DEPARTMENT</text>
+      <polygon points="290,25 350,62 290,99 230,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="66" text-anchor="middle" font-size="13" font-family="Georgia, serif">employs</text>
+      <line x1="160" y1="62" x2="230" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="185" y="52" font-size="13" font-weight="700" font-family="Georgia, serif">1</text>
+      <line x1="350" y1="58" x2="390" y2="58" stroke="#22301F" stroke-width="2"/>
+      <line x1="350" y1="66" x2="390" y2="66" stroke="#22301F" stroke-width="2"/>
+      <rect x="390" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="465" y="67" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">EMPLOYEE</text>
+      <text x="362" y="52" font-size="13" font-weight="700" font-family="Georgia, serif">N</text>
+      <text x="85" y="118" text-anchor="middle" font-size="12.5" font-style="italic" fill="#4A5248" font-family="Georgia, serif">Chen style</text>
+    </svg>
+    <figcaption>Fig. 5.5a — Chen-style: cardinality and participation drawn as two separate marks (a number, and a single or double line).</figcaption>
+  </figure>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="85" y="67" text-anchor="middle" font-size="13.5" font-family="Georgia, serif">DEPARTMENT</text>
+      <polygon points="290,25 350,62 290,99 230,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="66" text-anchor="middle" font-size="13" font-family="Georgia, serif">employs</text>
+      <line x1="160" y1="62" x2="230" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="175" y="52" font-size="13" font-weight="700" font-family="Georgia, serif">(0,N)</text>
+      <line x1="350" y1="62" x2="390" y2="62" stroke="#22301F" stroke-width="2"/>
+      <rect x="390" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="465" y="67" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">EMPLOYEE</text>
+      <text x="352" y="52" font-size="13" font-weight="700" font-family="Georgia, serif">(1,1)</text>
+      <text x="85" y="118" text-anchor="middle" font-size="12.5" font-style="italic" fill="#4A5248" font-family="Georgia, serif">(min, max) style</text>
+    </svg>
+    <figcaption>Fig. 5.5b — Same fact, (min,max) style: <code>(0,N)</code> by DEPARTMENT says "zero to many, optional"; <code>(1,1)</code> by EMPLOYEE says "exactly one, required." Read the pair next to an entity as a constraint <em>on that entity</em>, not on the entity across the diamond — a common early mix-up with this notation.</figcaption>
+  </figure>
+
+  <h3>5.3 — Participation constraint: total vs. partial</h3>
+  <ul>
+    <li><strong>Total participation</strong> (a <strong>double line</strong>): every instance must appear in this relationship.</li>
+    <li><strong>Partial participation</strong> (a <strong>single line</strong>, the default): participation is optional.</li>
+  </ul>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="35" width="160" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="90" y="67" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">DEPARTMENT</text>
+      <polygon points="300,25 360,62 300,99 240,62" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="300" y="66" text-anchor="middle" font-size="13" font-family="Georgia, serif">employs</text>
+      <line x1="170" y1="62" x2="240" y2="62" stroke="#22301F" stroke-width="2"/>
+      <text x="200" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">1</text>
+      <line x1="360" y1="58" x2="400" y2="58" stroke="#22301F" stroke-width="2"/>
+      <line x1="360" y1="66" x2="400" y2="66" stroke="#22301F" stroke-width="2"/>
+      <rect x="400" y="35" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="475" y="67" text-anchor="middle" font-size="15" font-family="Georgia, serif">EMPLOYEE</text>
+      <text x="372" y="52" font-size="14" font-weight="700" font-family="Georgia, serif">N</text>
+    </svg>
+    <figcaption>Fig. 5.4 — Single line from DEPARTMENT (partial: a department can exist with no employees yet); double line into EMPLOYEE (total: every employee must belong to some department).</figcaption>
+  </figure>
+
+  <div class="box question">
+    <span class="box-label">How to decide total vs. partial</span>
+    <p>Ask, for each entity separately: <strong>"Can this thing exist without ever taking part in this relationship?"</strong> If no — draw total participation (double line). If yes — draw partial participation (single line).</p>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 6 ======================= -->
+<section class="chapter wide-figures" id="ch6">
+  <p class="chapter-label">Chapter Six</p>
+  <h2 class="chapter-title">Weak Entities and Identifying Relationships</h2>
+
+  <p>A <em class="term">weak entity</em> is one whose instances cannot be told apart using its own attributes alone — it borrows its identity from an <em class="term">owner entity</em> that it is existence-dependent on.</p>
+
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p>A weak entity has <strong>existence dependency</strong> on its owner: if the owner instance is deleted, the weak entity instance no longer makes sense. Example: an <code>ORDER_ITEM</code> only exists in the context of a specific <code>ORDER</code> — "item number 1" is meaningless without knowing which order it belongs to.</p>
+  </div>
+
+  <p>A complete weak-entity representation always has three parts together:</p>
+  <ol>
+    <li>The weak entity drawn as a <strong>double-lined rectangle</strong>.</li>
+    <li>A <strong>partial key</strong> (dashed underline).</li>
+    <li>An <strong>identifying relationship</strong>, drawn as a <strong>double-lined diamond</strong>, to its owner.</li>
+  </ol>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+      <rect x="40" y="110" width="140" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="110" y="142" text-anchor="middle" font-size="15" font-family="Georgia, serif">ORDER</text>
+      <ellipse cx="110" cy="40" rx="60" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="110" y="45" text-anchor="middle" font-size="12" text-decoration="underline" font-family="Georgia, serif">Order_No</text>
+      <line x1="110" y1="110" x2="110" y2="66" stroke="#22301F" stroke-width="2"/>
+      <line x1="180" y1="137" x2="230" y2="137" stroke="#22301F" stroke-width="2"/>
+
+      <polygon points="300,89 370,137 300,185 230,137" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <polygon points="300,99 358,137 300,175 242,137" fill="none" stroke="#22301F" stroke-width="2"/>
+      <text x="300" y="141" text-anchor="middle" font-size="12" font-family="Georgia, serif">contains</text>
+      <line x1="370" y1="137" x2="480" y2="137" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="480" y="110" width="160" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <rect x="486" y="116" width="148" height="43" fill="none" stroke="#22301F" stroke-width="1.6"/>
+      <text x="560" y="142" text-anchor="middle" font-size="13.5" font-family="Georgia, serif">ORDER_ITEM</text>
+
+      <ellipse cx="560" cy="40" rx="60" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="560" y="45" text-anchor="middle" font-size="12" font-family="Georgia, serif" text-decoration="underline" style="text-decoration-style:dashed;">Item_No</text>
+      <line x1="560" y1="110" x2="560" y2="66" stroke="#22301F" stroke-width="2"/>
+
+      <text x="200" y="127" font-size="13" font-weight="700" font-family="Georgia, serif">1</text>
+      <text x="420" y="127" font-size="13" font-weight="700" font-family="Georgia, serif">N</text>
+    </svg>
+    <figcaption>Fig. 6.1 — ORDER_ITEM is a weak entity: double-lined rectangle, partial key Item_No (dashed underline), identifying relationship "contains" (double-lined diamond) to its owner ORDER.</figcaption>
+  </figure>
+
+  <p>The weak entity's true, system-wide identity is the <em>combination</em> of the owner's key and its own partial key — (Order_No = 105, Item_No = 1) uniquely identifies one order item across the entire system, even though Item_No = 1 repeats across many different orders.</p>
+</section>
+
+<!-- ======================= CHAPTER 7 ======================= -->
+<section class="chapter wide-figures" id="ch7">
+  <p class="chapter-label">Chapter Seven</p>
+  <h2 class="chapter-title">Worked Example: A Library Management System</h2>
+
+  <div class="box definition">
+    <span class="box-label">The requirement, in plain English</span>
+    <p>"The library keeps track of its books and its members. Members can borrow books, and we need to record when a book was borrowed and when it is due back. Each book is looked after by one librarian, and every book must have a librarian responsible for it."</p>
+  </div>
+
+  <h3>Step 1 — Identify entities</h3>
+  <p><code>MEMBER</code>, <code>BOOK</code>, <code>LIBRARIAN</code>.</p>
+
+  <h3>Step 2 — Identify attributes</h3>
+  <ul>
+    <li><strong>MEMBER</strong>: <code>Member_ID</code> (key), <code>Name</code> (composite), <code>Phone</code> (multivalued), <code>Join_Date</code>.</li>
+    <li><strong>BOOK</strong>: <code>ISBN</code> (key), <code>Title</code>, <code>Genre</code> (multivalued), <code>Publish_Year</code>.</li>
+    <li><strong>LIBRARIAN</strong>: <code>Employee_ID</code> (key), <code>Name</code>, <code>Age</code> (derived).</li>
+  </ul>
+
+  <h3>Step 3 — Identify relationships</h3>
+  <p><code>MEMBER</code>–<em>borrows</em>–<code>BOOK</code> (M:N, carries <code>Borrow_Date</code> and <code>Return_Date</code>). <code>LIBRARIAN</code>–<em>managed by</em>–<code>BOOK</code> (1:N).</p>
+
+  <h3>Step 4 — Decide participation</h3>
+  <p>A member may not have borrowed anything yet (partial). Every book must have a responsible librarian (total, on the BOOK side of "managed by").</p>
+
+  <h3>The finished diagram</h3>
+  <figure class="diagram">
+    <svg viewBox="-15 0 915 620" xmlns="http://www.w3.org/2000/svg">
+      <!-- MEMBER -->
+      <rect x="40" y="280" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="115" y="312" text-anchor="middle" font-size="15" font-family="Georgia, serif">MEMBER</text>
+
+      <ellipse cx="115" cy="200" rx="58" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="115" y="205" text-anchor="middle" font-size="12" text-decoration="underline" font-family="Georgia, serif">Member_ID</text>
+      <line x1="115" y1="280" x2="115" y2="226" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="40" cy="420" rx="50" ry="22" fill="none" stroke="#22301F" stroke-width="2.5"/>
+      <ellipse cx="40" cy="420" rx="40" ry="14" fill="#FFFFFF" stroke="#22301F" stroke-width="2"/>
+      <text x="40" y="424" text-anchor="middle" font-size="12" font-family="Georgia, serif">Phone</text>
+      <line x1="70" y1="335" x2="40" y2="398" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="160" cy="420" rx="55" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="160" y="425" text-anchor="middle" font-size="12" font-family="Georgia, serif">Name</text>
+      <line x1="130" y1="335" x2="160" y2="396" stroke="#22301F" stroke-width="2"/>
+      <line x1="135" y1="444" x2="90" y2="500" stroke="#22301F" stroke-width="2"/>
+      <line x1="185" y1="444" x2="230" y2="500" stroke="#22301F" stroke-width="2"/>
+      <ellipse cx="90" cy="512" rx="65" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="90" y="517" text-anchor="middle" font-size="11" font-family="Georgia, serif">First_Name</text>
+      <ellipse cx="230" cy="512" rx="62" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="230" y="517" text-anchor="middle" font-size="11" font-family="Georgia, serif">Last_Name</text>
+
+      <ellipse cx="290" cy="205" rx="55" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="210" text-anchor="middle" font-size="11.5" font-family="Georgia, serif">Join_Date</text>
+      <line x1="180" y1="290" x2="255" y2="223" stroke="#22301F" stroke-width="2"/>
+
+      <!-- BORROWS relationship -->
+      <polygon points="400,259 470,307 400,355 330,307" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="400" y="311" text-anchor="middle" font-size="12" font-family="Georgia, serif">borrows</text>
+      <line x1="190" y1="307" x2="330" y2="307" stroke="#22301F" stroke-width="2"/>
+      <text x="250" y="297" font-size="13" font-weight="700" font-family="Georgia, serif">M</text>
+
+      <ellipse cx="345" cy="430" rx="58" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="345" y="434" text-anchor="middle" font-size="11" font-family="Georgia, serif">Borrow_Date</text>
+      <line x1="380" y1="355" x2="360" y2="406" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="465" cy="430" rx="58" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="465" y="434" text-anchor="middle" font-size="11" font-family="Georgia, serif">Return_Date</text>
+      <line x1="425" y1="355" x2="445" y2="406" stroke="#22301F" stroke-width="2"/>
+
+      <!-- BOOK -->
+      <rect x="560" y="280" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="635" y="312" text-anchor="middle" font-size="15" font-family="Georgia, serif">BOOK</text>
+      <line x1="470" y1="307" x2="560" y2="307" stroke="#22301F" stroke-width="2"/>
+      <text x="510" y="297" font-size="13" font-weight="700" font-family="Georgia, serif">N</text>
+
+      <ellipse cx="595" cy="410" rx="50" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="595" y="415" text-anchor="middle" font-size="12" text-decoration="underline" font-family="Georgia, serif">ISBN</text>
+      <line x1="595" y1="335" x2="595" y2="386" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="770" cy="230" rx="55" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="770" y="235" text-anchor="middle" font-size="12" font-family="Georgia, serif">Title</text>
+      <line x1="710" y1="290" x2="720" y2="248" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="780" cy="400" rx="50" ry="22" fill="none" stroke="#22301F" stroke-width="2.5"/>
+      <ellipse cx="780" cy="400" rx="40" ry="14" fill="#FFFFFF" stroke="#22301F" stroke-width="2"/>
+      <text x="780" y="404" text-anchor="middle" font-size="12" font-family="Georgia, serif">Genre</text>
+      <line x1="710" y1="325" x2="750" y2="382" stroke="#22301F" stroke-width="2"/>
+
+      <!-- MANAGED BY relationship (vertical, total on BOOK side) -->
+      <polygon points="635,108 700,150 635,192 570,150" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="635" y="146" text-anchor="middle" font-size="11" font-family="Georgia, serif">managed</text>
+      <text x="635" y="159" text-anchor="middle" font-size="11" font-family="Georgia, serif">by</text>
+      <line x1="631" y1="280" x2="631" y2="192" stroke="#22301F" stroke-width="2"/>
+      <line x1="639" y1="280" x2="639" y2="192" stroke="#22301F" stroke-width="2"/>
+      <text x="648" y="240" font-size="13" font-weight="700" font-family="Georgia, serif">N</text>
+
+      <!-- LIBRARIAN -->
+      <rect x="560" y="20" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="635" y="52" text-anchor="middle" font-size="14.5" font-family="Georgia, serif">LIBRARIAN</text>
+      <line x1="635" y1="75" x2="635" y2="108" stroke="#22301F" stroke-width="2"/>
+      <text x="648" y="95" font-size="13" font-weight="700" font-family="Georgia, serif">1</text>
+
+      <ellipse cx="800" cy="47" rx="55" ry="24" fill="none" stroke="#22301F" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <text x="800" y="52" text-anchor="middle" font-size="12" font-family="Georgia, serif">Age</text>
+      <line x1="710" y1="47" x2="745" y2="47" stroke="#22301F" stroke-width="2"/>
+    </svg>
+    <figcaption>Fig. 7.1 — The complete Library Management ER diagram: every attribute type in use, a relationship carrying its own attributes, M:N and 1:N cardinality, and the double line into "managed by" showing BOOK's total participation.</figcaption>
+  </figure>
+
+  <p>Confirm you can point to an example of every concept from Chapters 2–6 in Figure 7.1: a simple attribute, a composite attribute, a multivalued attribute, a key attribute, a relationship carrying its own attributes, M:N cardinality, 1:N cardinality, and a total-participation double line.</p>
+</section>
+
+<!-- ======================= CHAPTER 8 ======================= -->
+<section class="chapter" id="ch8">
+  <p class="chapter-label">Chapter Eight</p>
+  <h2 class="chapter-title">Enhanced ER: Specialization and Generalization</h2>
+
+  <p>Real systems very often contain hierarchies: an <code>EMPLOYEE</code> might specifically be an <code>ENGINEER</code> or a <code>MANAGER</code>. Each more specific type shares everything the general type has, plus a few extra attributes of its own — the "is-a" relationship, familiar from inheritance in object-oriented programming.</p>
+
+  <h3>Specialization: top-down</h3>
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p><strong>Specialization</strong> defines more specific sub-entities from a single higher-level (super) entity. A top-down way of thinking: start with the general concept and split it.</p>
+  </div>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="235" y="20" width="170" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="320" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">EMPLOYEE</text>
+      <line x1="320" y1="75" x2="320" y2="120" stroke="#22301F" stroke-width="2"/>
+
+      <polygon points="280,120 360,120 320,175" fill="#22301F" stroke="#22301F" stroke-width="2"/>
+      <text x="320" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Georgia, serif">ISA</text>
+
+      <line x1="320" y1="175" x2="180" y2="230" stroke="#22301F" stroke-width="2"/>
+      <line x1="320" y1="175" x2="460" y2="230" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="90" y="230" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="180" y="262" text-anchor="middle" font-size="15" font-family="Georgia, serif">ENGINEER</text>
+      <rect x="370" y="230" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="460" y="262" text-anchor="middle" font-size="15" font-family="Georgia, serif">MANAGER</text>
+    </svg>
+    <figcaption>Fig. 8.1 — Specialization: EMPLOYEE splits into ENGINEER and MANAGER via the ISA triangle.</figcaption>
+  </figure>
+
+  <h3>Generalization: bottom-up</h3>
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p><strong>Generalization</strong> is the reverse process: start with entities that already share common attributes and combine them into a new higher-level super entity.</p>
+  </div>
+
+  <p>Example: <code>STUDENT</code> and <code>TEACHER</code> both have <code>Name</code>, <code>Address</code>, <code>Phone</code> → generalize into a common <code>PERSON</code> super-entity, keeping <code>Fee</code> under STUDENT and <code>Salary</code> under TEACHER.</p>
+
+  <div class="box question">
+    <span class="box-label">So... is generalization just specialization drawn backwards?</span>
+    <p>Visually, yes — the finished diagram uses the same triangle notation either way. The distinction is about your design process, not the final picture.</p>
+  </div>
+
+  <h3>Inheritance</h3>
+  <ul>
+    <li><strong>Attribute inheritance</strong> — every sub-entity automatically has all the super-entity's attributes, plus its own.</li>
+    <li><strong>Relationship inheritance</strong> — if EMPLOYEE participates in some other relationship, ENGINEER and MANAGER can too, because they <em>are</em> employees.</li>
+  </ul>
+</section>
+
+<!-- ======================= CHAPTER 9 ======================= -->
+<section class="chapter wide-figures" id="ch9">
+  <p class="chapter-label">Chapter Nine</p>
+  <h2 class="chapter-title">Constraints: Disjoint, Overlapping, Total, Partial</h2>
+
+  <p>Every "isa" hierarchy needs two independent yes/no decisions written explicitly on the diagram.</p>
+
+  <h3>Question A — Can an entity belong to more than one subclass at once?</h3>
+  <ul>
+    <li><strong>Disjoint</strong> (marked <strong>d</strong>): No — the subclasses' member sets never intersect. An employee is either an Engineer or a Manager, never both.</li>
+    <li><strong>Overlapping</strong> (marked <strong>o</strong>): Yes — the subclasses' member sets can intersect. A person could be both a STUDENT and a TEACHER at once.</li>
+  </ul>
+
+  <p>Because the "d"/"o" decision is really a question about whether the two subclasses' membership sets can overlap, it helps to see it as a Venn diagram — the same picture you'd draw for a set-intersection problem in mathematics:</p>
+
+  <figure class="diagram">
+    <div class="venn-row">
+      <div>
+        <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="80" r="48" fill="#2F6657" fill-opacity="0.28" stroke="#22301F" stroke-width="2"/>
+          <circle cx="205" cy="80" r="48" fill="#9C4530" fill-opacity="0.28" stroke="#22301F" stroke-width="2"/>
+          <text x="75" y="85" text-anchor="middle" font-size="13" font-family="Georgia, serif">ENGINEER</text>
+          <text x="205" y="85" text-anchor="middle" font-size="13" font-family="Georgia, serif">MANAGER</text>
+        </svg>
+        <p class="venn-caption"><strong>Disjoint (d)</strong> — the sets never intersect; an employee is a member of at most one.</p>
+      </div>
+      <div>
+        <svg viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="105" cy="80" r="60" fill="#2F6657" fill-opacity="0.32" stroke="#22301F" stroke-width="2"/>
+          <circle cx="165" cy="80" r="60" fill="#9C4530" fill-opacity="0.32" stroke="#22301F" stroke-width="2"/>
+          <text x="75" y="85" text-anchor="middle" font-size="13" font-family="Georgia, serif">STUDENT</text>
+          <text x="195" y="85" text-anchor="middle" font-size="13" font-family="Georgia, serif">TEACHER</text>
+          <text x="135" y="140" text-anchor="middle" font-size="12" font-style="italic" font-family="Georgia, serif">shared members</text>
+        </svg>
+        <p class="venn-caption"><strong>Overlapping (o)</strong> — the sets can intersect; a person can be in both at once.</p>
+      </div>
+    </div>
+  </figure>
+
+  <h3>Question B — Must every super-entity instance belong to some subclass?</h3>
+  <ul>
+    <li><strong>Total specialization</strong> (double line): Yes — every super-entity instance must fall into at least one subclass.</li>
+    <li><strong>Partial specialization</strong> (single line): No — some super-entity instances might belong to none of the defined subclasses.</li>
+  </ul>
+
+  <table>
+    <tr><th>Combination</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td>Disjoint + Total</td><td>Every instance belongs to exactly one subclass, no exceptions.</td><td>Every EMPLOYEE is either an ENGINEER or a MANAGER, never both.</td></tr>
+    <tr><td>Disjoint + Partial</td><td>At most one subclass; some instances belong to none.</td><td>Some employees are ENGINEER or MANAGER; interns fit neither.</td></tr>
+    <tr><td>Overlapping + Total</td><td>At least one subclass, possibly several.</td><td>Every PERSON is a STUDENT and/or TEACHER.</td></tr>
+    <tr><td>Overlapping + Partial</td><td>None, one, or several subclasses.</td><td>A VEHICLE may be neither, either, or both ELECTRIC and COMMERCIAL.</td></tr>
+  </table>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="235" y="20" width="170" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="320" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">EMPLOYEE</text>
+      <line x1="316" y1="75" x2="316" y2="120" stroke="#22301F" stroke-width="2"/>
+      <line x1="324" y1="75" x2="324" y2="120" stroke="#22301F" stroke-width="2"/>
+
+      <polygon points="280,120 360,120 320,175" fill="#22301F" stroke="#22301F" stroke-width="2"/>
+      <text x="320" y="145" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Georgia, serif">ISA</text>
+      <text x="390" y="155" font-size="19" font-weight="700" font-family="Georgia, serif" fill="#9C4530">d</text>
+
+      <line x1="320" y1="175" x2="180" y2="230" stroke="#22301F" stroke-width="2"/>
+      <line x1="320" y1="175" x2="460" y2="230" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="90" y="230" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="180" y="262" text-anchor="middle" font-size="15" font-family="Georgia, serif">ENGINEER</text>
+      <rect x="370" y="230" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="460" y="262" text-anchor="middle" font-size="15" font-family="Georgia, serif">MANAGER</text>
+    </svg>
+    <figcaption>Fig. 9.1 — Disjoint, total specialization: the double line means every employee must fall into a subclass; the "d" means never into more than one.</figcaption>
+  </figure>
+</section>
+
+<!-- ======================= CHAPTER 10 ======================= -->
+<section class="chapter wide-figures" id="ch10">
+  <p class="chapter-label">Chapter Ten</p>
+  <h2 class="chapter-title">Aggregation</h2>
+
+  <p>What if a relationship needs to connect to <em>another relationship</em>, rather than to an entity? A diamond cannot directly attach to another diamond. <em class="term">Aggregation</em> is the EER device built to solve exactly this.</p>
+
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p><strong>Aggregation</strong> treats an entire existing relationship — together with the entities it connects — as if it were a single abstract entity, so a new relationship can be drawn to that combined unit.</p>
+  </div>
+
+  <p>Example: <code>EMPLOYEE</code> <em>works_on</em> <code>PROJECT</code> already exists. Now a <code>MANAGER</code> needs to <em>monitor</em> that specific assignment — a fact about the pairing, not about either entity alone. We draw a dashed boundary around the whole EMPLOYEE–works_on–PROJECT group and connect "monitors" to that boundary.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+      <rect x="30" y="20" width="460" height="150" fill="none" stroke="#22301F" stroke-width="2" stroke-dasharray="7,5" rx="6"/>
+
+      <rect x="60" y="60" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="135" y="92" text-anchor="middle" font-size="14" font-family="Georgia, serif">EMPLOYEE</text>
+
+      <polygon points="330,42 395,87 330,132 265,87" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="330" y="83" text-anchor="middle" font-size="11" font-family="Georgia, serif">works</text>
+      <text x="330" y="95" text-anchor="middle" font-size="11" font-family="Georgia, serif">_on</text>
+      <line x1="210" y1="87" x2="265" y2="87" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="430" y="60" width="140" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="500" y="92" text-anchor="middle" font-size="14" font-family="Georgia, serif">PROJECT</text>
+      <line x1="395" y1="87" x2="430" y2="87" stroke="#22301F" stroke-width="2"/>
+
+      <line x1="260" y1="170" x2="260" y2="192" stroke="#22301F" stroke-width="2" stroke-dasharray="5,4"/>
+      <polygon points="260,192 315,230 260,268 205,230" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="260" y="234" text-anchor="middle" font-size="11" font-family="Georgia, serif">monitors</text>
+
+      <line x1="315" y1="230" x2="430" y2="230" stroke="#22301F" stroke-width="2"/>
+      <rect x="430" y="203" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="505" y="235" text-anchor="middle" font-size="14" font-family="Georgia, serif">MANAGER</text>
+    </svg>
+    <figcaption>Fig. 10.1 — Aggregation: the dashed boundary treats the whole EMPLOYEE–works_on–PROJECT relationship as one unit, which MANAGER then "monitors."</figcaption>
+  </figure>
+
+  <div class="box question">
+    <span class="box-label">How do I know when I need aggregation instead of another relationship?</span>
+    <p>Ask whether the new fact genuinely depends on the pairing, not on either entity alone. If MANAGER simply needed to monitor employees in general, you'd draw a normal binary relationship — no aggregation needed.</p>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 11 (NEW) ======================= -->
+<section class="chapter wide-figures" id="ch11">
+  <p class="chapter-label">Chapter Eleven</p>
+  <h2 class="chapter-title">Union Types (Category): A Subclass of Several Distinct Superclasses</h2>
+
+  <p>Specialization and generalization both assume every subclass shares <em>one single</em> superclass. But sometimes a subclass's members are drawn from the <strong>union</strong> of several genuinely different superclasses that don't otherwise have anything in common. This needs a fourth EER construct: the <em class="term">category</em> (also called a union type).</p>
+
+  <div class="box definition">
+    <span class="box-label">Definition</span>
+    <p>A <strong>category</strong> represents a subclass that is a subset of the <em>union</em> of two or more distinct superclasses, each of which may have its own separate key and its own unrelated attributes. This is different from specialization, where all subclasses come from one common superclass. It is drawn as a circle containing a <strong>U</strong>, with lines from each superclass converging into it, and a single line down to the category entity.</p>
+  </div>
+
+  <p>Classic example: a vehicle needs to record its <code>OWNER</code>. An owner might be a <code>PERSON</code>, a <code>BANK</code> (if the vehicle is financed), or a <code>COMPANY</code> (if it's a company car). These three superclasses have almost nothing in common — a person's attributes (Age, Aadhar_No) look nothing like a bank's (Branch_Code) or a company's (Registration_No). It would make no sense to force them all into one shared "specialization" superclass just so OWNER could specialize from it. Instead, OWNER is a category — a subset of PERSON ∪ BANK ∪ COMPANY.</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="20" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="95" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">PERSON</text>
+
+      <rect x="315" y="20" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="390" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">BANK</text>
+
+      <rect x="610" y="20" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="685" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">COMPANY</text>
+
+      <line x1="95" y1="75" x2="375" y2="155" stroke="#22301F" stroke-width="2"/>
+      <line x1="390" y1="75" x2="390" y2="155" stroke="#22301F" stroke-width="2"/>
+      <line x1="685" y1="75" x2="405" y2="155" stroke="#22301F" stroke-width="2"/>
+
+      <circle cx="390" cy="175" r="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="390" y="182" text-anchor="middle" font-size="17" font-weight="700" font-family="Georgia, serif">U</text>
+
+      <line x1="390" y1="199" x2="390" y2="245" stroke="#22301F" stroke-width="2"/>
+      <rect x="315" y="245" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="390" y="277" text-anchor="middle" font-size="15" font-family="Georgia, serif">OWNER</text>
+
+      <polygon points="580,272 640,307 580,342 520,307" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="580" y="311" text-anchor="middle" font-size="12" font-family="Georgia, serif">owns</text>
+      <line x1="465" y1="272" x2="520" y2="307" stroke="#22301F" stroke-width="2"/>
+
+      <rect x="640" y="280" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="705" y="312" text-anchor="middle" font-size="14" font-family="Georgia, serif">VEHICLE</text>
+    </svg>
+    <figcaption>Fig. 11.1 — OWNER is a category: a subset of the union of PERSON, BANK, and COMPANY. Each is a distinct superclass with its own attributes; OWNER inherits from whichever one applies to a given instance.</figcaption>
+  </figure>
+
+  <div class="box question">
+    <span class="box-label">How is this different from overlapping specialization?</span>
+    <p>In overlapping specialization, all subclasses inherit from <em>one</em> shared superclass, and an instance can belong to several subclasses at once. In a category, each member belongs to exactly <em>one</em> of the several unrelated superclasses at a time — a given OWNER is a person, <em>or</em> a bank, <em>or</em> a company, not several simultaneously — but which superclass applies can differ from instance to instance, and the superclasses themselves share nothing in common. The "U" precisely marks this union-of-unrelated-sets situation, distinct from both disjoint and overlapping specialization.</p>
+  </div>
+
+  <h3>Quick reference: which EER construct do I need?</h3>
+  <p>Chapters 8 through 11 introduced four different devices, and it's easy to blur them together once they're no longer side by side. Before moving to the full worked example, run your situation through these four questions in order — the first one that fits is the construct you want.</p>
+
+  <table>
+    <tr><th>If you're asking...</th><th>You need</th><th>Worked example</th></tr>
+    <tr><td>"Do these sub-entities share <em>one</em> common superclass, and I'm starting from that superclass and splitting it?"</td><td><strong>Specialization</strong> (Ch. 8)</td><td>EMPLOYEE → ENGINEER / MANAGER</td></tr>
+    <tr><td>"Do these entities already exist with overlapping attributes, and I want to factor out what they share into a new superclass?"</td><td><strong>Generalization</strong> (Ch. 8)</td><td>STUDENT + TEACHER → PERSON</td></tr>
+    <tr><td>"Does a new relationship need to attach to an <em>existing relationship</em> — a fact about a pairing, not about any single entity?"</td><td><strong>Aggregation</strong> (Ch. 10)</td><td>MANAGER monitors (EMPLOYEE works_on PROJECT)</td></tr>
+    <tr><td>"Do the members of this subclass come from <em>several genuinely unrelated</em> superclasses, with no shared attributes to generalize?"</td><td><strong>Category / union type</strong> (Ch. 11)</td><td>OWNER ⊆ PERSON ∪ BANK ∪ COMPANY</td></tr>
+  </table>
+
+  <div class="box mistake">
+    <span class="box-label">The tell-tale sign you've picked the wrong one</span>
+    <p>If you find yourself inventing a superclass that doesn't correspond to anything in the requirements just so two or three subclasses have somewhere to inherit from, that's the signal to stop and check whether you actually need a <strong>category</strong> instead (Mistake 14, Chapter 13). Conversely, if you're drawing a dashed aggregation boundary around a single entity rather than around a relationship, you don't need aggregation at all — a normal relationship will do.</p>
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 12 ======================= -->
+<section class="chapter wide-figures" id="ch12">
+  <p class="chapter-label">Chapter Twelve</p>
+  <h2 class="chapter-title">Worked Example: A Full EER Diagram</h2>
+
+  <div class="box definition">
+    <span class="box-label">The requirement, in plain English</span>
+    <p>"A hospital employs staff. Every staff member has a Staff_ID, Name, and Phone. Each staff member is either a doctor or a nurse — never both, and there is no other category of staff. Doctors additionally have a Specialization; nurses additionally have a Shift_Timing. Doctors treat patients, and for each treatment we record a Diagnosis. Patients have a Patient_ID and Name."</p>
+  </div>
+
+  <ul>
+    <li><strong>Entities:</strong> STAFF (super-entity), DOCTOR and NURSE (sub-entities), PATIENT.</li>
+    <li><strong>Constraint:</strong> "either a doctor or a nurse, never both" → disjoint. "No other category" → total.</li>
+    <li><strong>Relationship:</strong> DOCTOR–treats–PATIENT, one-to-many, carrying Diagnosis.</li>
+  </ul>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 950 580" xmlns="http://www.w3.org/2000/svg">
+      <rect x="340" y="20" width="170" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="425" y="52" text-anchor="middle" font-size="15" font-family="Georgia, serif">STAFF</text>
+
+      <ellipse cx="205" cy="47" rx="60" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="205" y="52" text-anchor="middle" font-size="12" text-decoration="underline" font-family="Georgia, serif">Staff_ID</text>
+      <line x1="340" y1="47" x2="265" y2="47" stroke="#22301F" stroke-width="2"/>
+
+      <ellipse cx="645" cy="47" rx="55" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="645" y="52" text-anchor="middle" font-size="12" font-family="Georgia, serif">Phone</text>
+      <line x1="510" y1="47" x2="590" y2="47" stroke="#22301F" stroke-width="2"/>
+
+      <line x1="421" y1="75" x2="421" y2="140" stroke="#22301F" stroke-width="2"/>
+      <line x1="429" y1="75" x2="429" y2="140" stroke="#22301F" stroke-width="2"/>
+
+      <polygon points="385,140 465,140 425,195" fill="#22301F" stroke="#22301F" stroke-width="2"/>
+      <text x="425" y="165" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="Georgia, serif">ISA</text>
+      <text x="485" y="175" font-size="19" font-weight="700" font-family="Georgia, serif" fill="#9C4530">d</text>
+
+      <line x1="425" y1="195" x2="230" y2="240" stroke="#22301F" stroke-width="2"/>
+      <line x1="425" y1="195" x2="650" y2="240" stroke="#22301F" stroke-width="2"/>
+
+      <!-- DOCTOR subclass -->
+      <rect x="140" y="240" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="230" y="272" text-anchor="middle" font-size="15" font-family="Georgia, serif">DOCTOR</text>
+
+      <ellipse cx="180" cy="350" rx="68" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="180" y="355" text-anchor="middle" font-size="11.5" font-family="Georgia, serif">Specialization</text>
+      <line x1="200" y1="295" x2="185" y2="324" stroke="#22301F" stroke-width="2"/>
+
+      <!-- NURSE subclass, kept clear of the treats/PATIENT row below -->
+      <rect x="560" y="240" width="180" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="650" y="272" text-anchor="middle" font-size="15" font-family="Georgia, serif">NURSE</text>
+
+      <ellipse cx="650" cy="350" rx="65" ry="26" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="650" y="355" text-anchor="middle" font-size="11.5" font-family="Georgia, serif">Shift_Timing</text>
+      <line x1="650" y1="295" x2="650" y2="324" stroke="#22301F" stroke-width="2"/>
+
+      <!-- treats / PATIENT sit in their own row well below NURSE, so the
+           connecting line never has to cross the NURSE box -->
+      <line x1="290" y1="295" x2="290" y2="418" stroke="#22301F" stroke-width="2"/>
+      <text x="300" y="360" font-size="13" font-weight="700" font-family="Georgia, serif">1</text>
+
+      <polygon points="290,418 350,460 290,502 230,460" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="464" text-anchor="middle" font-size="12" font-family="Georgia, serif">treats</text>
+
+      <ellipse cx="290" cy="535" rx="55" ry="24" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="290" y="540" text-anchor="middle" font-size="12" font-family="Georgia, serif">Diagnosis</text>
+      <line x1="290" y1="502" x2="290" y2="511" stroke="#22301F" stroke-width="2"/>
+
+      <line x1="350" y1="460" x2="750" y2="460" stroke="#22301F" stroke-width="2"/>
+      <text x="700" y="450" font-size="13" font-weight="700" font-family="Georgia, serif">N</text>
+
+      <rect x="750" y="433" width="150" height="55" fill="#FFFFFF" stroke="#22301F" stroke-width="2.5"/>
+      <text x="825" y="465" text-anchor="middle" font-size="15" font-family="Georgia, serif">PATIENT</text>
+    </svg>
+    <figcaption>Fig. 12.1 — A complete EER diagram: disjoint-total specialization of STAFF, attribute inheritance to DOCTOR and NURSE, and a 1:N "treats" relationship carrying its own Diagnosis attribute. Notice treats is drawn in its own row beneath NURSE, so its connecting line to PATIENT never has to cross another entity.</figcaption>
+  </figure>
+
+  <p>Compare this diagram against the requirement sentence by sentence. Every noun phrase should map onto something you can point to: an entity, an attribute, a relationship, or a constraint marking.</p>
+</section>
+
+<!-- ======================= CHAPTER 13 ======================= -->
+<section class="chapter" id="ch13">
+  <p class="chapter-label">Chapter Thirteen</p>
+  <h2 class="chapter-title">Mistakes Almost Every Beginner Makes</h2>
+
+  <p>Ordered from the most common conceptual mix-up down to smaller finishing-touch errors.</p>
+
+  <div class="mistake-list">
+
+    <div class="mistake-item">
+      <h4>Adding primary keys and foreign keys to the ER diagram</h4>
+      <p>Students who've already studied SQL can't resist writing "PK" or "FK" next to attributes. There is no foreign-key notation in Chen's notation — a relationship diamond already fully captures the connection. Foreign keys only appear once the diagram is converted into tables, a later stage.</p>
+      <div class="wrongright">
+        <div class="wrong"><span class="tag">Overthinking it</span>Writing "Dept_ID (FK)" inside the EMPLOYEE rectangle.</div>
+        <div class="right"><span class="tag">Correct at this stage</span>A "belongs to" relationship diamond connecting EMPLOYEE to DEPARTMENT.</div>
+      </div>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Confusing an attribute with an entity</h4>
+      <p>Use the Chapter 2 test: does the "thing" need its own attributes, or could it relate to more than one instance of something else?</p>
+      <div class="wrongright">
+        <div class="wrong"><span class="tag">Too simplified</span>DEPARTMENT kept as an attribute "Dept_Name" inside EMPLOYEE, even though the system also tracks department budgets and locations.</div>
+        <div class="right"><span class="tag">Correctly modeled</span>DEPARTMENT promoted to its own entity with Dept_Name, Location, Budget, connected via "works in."</div>
+      </div>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Confusing a relationship with an entity</h4>
+      <p>If the association carries enough independent meaning to feel like a "thing" in its own right, it may need to become a full entity, often reached through aggregation (Chapter 10).</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Misreading which side gets the "1" and which gets the "N"</h4>
+      <p>Always sanity-check with the sentence test from Chapter 5: "One ___ can have many ___."</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Forgetting participation constraints entirely</h4>
+      <p>Get in the habit of asking, for every entity in every relationship: "can this exist without ever taking part here?"</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Treating three related entities as a ternary relationship when two binary ones would do</h4>
+      <p>A genuine ternary relationship (Figure 4.2) is needed only when the fact is inseparably about all three at once. If it can be broken into two independent binary relationships without losing information, prefer that.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Leaving a multivalued attribute as-is when it should be promoted to an entity</h4>
+      <p>A double-oval multivalued attribute is valid until it needs details of its own — e.g. recording whether each phone number is "Home" or "Work" requires promoting it to its own entity.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Incomplete weak-entity representation</h4>
+      <p>A weak entity needs all three parts together (Chapter 6): the double rectangle, the dashed-underline partial key, and the double-lined identifying relationship. Missing any one is a half-finished answer.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Mixing notation styles on one diagram</h4>
+      <p>Don't use a Chen-style diamond in one place and a Crow's-Foot line-ending elsewhere. Pick one system and use it consistently.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Drawing redundant relationships</h4>
+      <p>If a fact can already be derived by following two existing relationships, a third direct relationship expressing the same thing is usually unnecessary and risks contradictory data.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Overcomplicating the diagram with implementation detail</h4>
+      <p>Data types, field lengths, indexes, and normalization belong to later design stages, not the conceptual ER diagram.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Forgetting the key attribute altogether</h4>
+      <p>Without an underlined key attribute, the entity set isn't properly defined. Confirm every strong entity has at least one before considering the diagram finished.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Naming relationships vaguely ("R1", "relates to")</h4>
+      <p>A relationship name should let the diagram read as a real sentence: "manages," "enrolls in," "treats."</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Leaving specialization constraints unmarked</h4>
+      <p>Drawing the ISA triangle without deciding disjoint/overlapping ("d"/"o", Figure 9.1's Venn diagrams) and total/partial (single/double line) leaves out exactly the information EER was invented to express.</p>
+    </div>
+
+    <div class="mistake-item">
+      <h4>Forcing unrelated superclasses into one specialization instead of a category</h4>
+      <p>If your subclasses genuinely come from several unrelated superclasses (Chapter 11's PERSON / BANK / COMPANY example), forcing them into a shared "specialization" superclass invents a superclass that doesn't really exist. Use a category (circled U) instead.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================= CHAPTER 14 ======================= -->
+<section class="chapter wide-figures" id="ch14">
+  <p class="chapter-label">Chapter Fourteen</p>
+  <h2 class="chapter-title">Symbol Reference and Practice</h2>
+
+  <h3>Complete symbol reference</h3>
+  <table>
+    <tr><th class="cheat-shape-cell">Shape</th><th>Symbol</th><th>Meaning</th></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-rect" style="margin:0 auto; width:80px; height:40px; font-size:11px;">Entity</div></td><td>Rectangle</td><td>Strong entity.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-rect weak" style="margin:0 auto; width:80px; height:40px; font-size:10px;">Weak</div></td><td>Double-lined rectangle</td><td>Weak entity — existence-dependent on an owner.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-oval" style="margin:0 auto; width:80px; height:44px; font-size:11px;">attr</div></td><td>Oval</td><td>Simple attribute.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-oval key" style="margin:0 auto; width:80px; height:44px; font-size:11px;">key</div></td><td>Underlined oval</td><td>Key attribute.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-oval pkey" style="margin:0 auto; width:80px; height:44px; font-size:10px;">p-key</div></td><td>Dashed-underline oval</td><td>Partial key of a weak entity.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-oval multi" style="margin:0 auto; width:80px; height:44px; font-size:10px;">multi</div></td><td>Double oval</td><td>Multivalued attribute.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-oval derived" style="margin:0 auto; width:80px; height:44px; font-size:10px;">derived</div></td><td>Dashed oval</td><td>Derived attribute.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-diamond" style="margin:0 auto; width:72px; height:46px;"><span style="font-size:9.5px;">rel</span></div></td><td>Diamond</td><td>Relationship (binary if 2 lines, ternary if 3 — Fig. 4.2).</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-diamond identifying" style="margin:0 auto; width:72px; height:46px;"><span style="font-size:9px;">id-rel</span></div></td><td>Double-lined diamond</td><td>Identifying relationship for a weak entity.</td></tr>
+    <tr><td class="cheat-shape-cell">—</td><td>Single line</td><td>Partial participation.</td></tr>
+    <tr><td class="cheat-shape-cell">═</td><td>Double line</td><td>Total participation.</td></tr>
+    <tr><td class="cheat-shape-cell">1, N, M</td><td>Number beside entity</td><td>Cardinality.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-tri" style="margin:0 auto; transform:scale(0.55);"><span>d</span></div></td><td>Triangle with "d"</td><td>Disjoint specialization — never overlapping (Fig. 9.1 Venn).</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-tri" style="margin:0 auto; transform:scale(0.55);"><span>o</span></div></td><td>Triangle with "o"</td><td>Overlapping specialization — sets can intersect.</td></tr>
+    <tr><td class="cheat-shape-cell">┄</td><td>Dashed boundary</td><td>Aggregation — an entire relationship treated as one unit.</td></tr>
+    <tr><td class="cheat-shape-cell"><div class="sh-circle-u" style="margin:0 auto;">U</div></td><td>Circled "U"</td><td>Category (union type) — subclass of the union of several distinct superclasses (Chapter 11).</td></tr>
+  </table>
+
+  <h3>Practice problems</h3>
+  <div class="practice-item"><span class="num">1</span><strong>University system.</strong> Model STUDENT, PROFESSOR, DEPARTMENT, COURSE, with a professor advising students, a department employing professors and offering courses, and a student enrolling in courses with a grade.</div>
+  <div class="practice-item"><span class="num">2</span><strong>Vehicle rental system.</strong> Specialize VEHICLE into CAR and BIKE (state your own disjoint/overlapping and total/partial rule). Add a weak entity MAINTENANCE_RECORD depending on VEHICLE.</div>
+  <div class="practice-item"><span class="num">3</span><strong>Hospital appointment system.</strong> Use aggregation: an ADMIN approves a specific DOCTOR–treats–PATIENT pairing, following Figure 10.1.</div>
+  <div class="practice-item"><span class="num">4</span><strong>Payments system.</strong> Model a PAYMENT that can come from a PERSON, a BANK, or a COMPANY, using a category (Figure 11.1) rather than forcing one shared superclass.</div>
+  <div class="practice-item"><span class="num">5</span><strong>Ternary practice.</strong> Model DOCTOR, PATIENT, and HOSPITAL together in a single ternary relationship "treats_at," carrying a Date attribute, following Figure 4.2's layout.</div>
+
+</section>
+
+<hr class="divider">
+<p class="endnote">End of course. Revisit Chapter 13 once more after finishing your own diagram — most of these mistakes are far easier to spot in your own work on a second pass.</p>
+
+</body>
+</html>
