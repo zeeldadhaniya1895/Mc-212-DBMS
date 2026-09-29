@@ -128,6 +128,7 @@
   hr.divider{ border:none; border-top:1px solid var(--rule); margin:60px 0 0; }
   .endnote{ max-width:760px; margin:64px auto 0; padding:0 24px 70px; color:var(--ink-soft); font-size:15px; text-align:center; font-style:italic; }
 
+  .companion a{ color:var(--forest-deep); }
   .venn-caption{ font-size:14px; text-align:center; color:var(--ink-soft); margin-top:6px; }
   .venn-row{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
   @media (max-width:600px){ .venn-row{ grid-template-columns:1fr; } }
@@ -165,6 +166,10 @@
     <li><a href="#ch13">Mistakes almost every beginner makes</a></li>
     <li><a href="#ch14">Symbol reference and practice</a></li>
   </ol>
+  <div class="box definition companion" style="margin-top:28px">
+    <span class="box-label">Companion handbook</span>
+    <p>Finished your diagram? <a href="er-to-relational.html"><strong>From ER Diagram to Relational Schema: The Complete Mapping Handbook</strong></a> shows how to turn every symbol in this course into tables, primary keys, and foreign keys, with worked examples, SQL, and common mistakes.</p>
+  </div>
 </nav>
 
 <!-- ======================= CHAPTER 1 ======================= -->
@@ -1105,7 +1110,7 @@
 </section>
 
 <hr class="divider">
-<p class="endnote">End of course. Revisit Chapter 13 once more after finishing your own diagram — most of these mistakes are far easier to spot in your own work on a second pass.</p>
+<p class="endnote">End of course. Revisit Chapter 13 once more after finishing your own diagram — most of these mistakes are far easier to spot in your own work on a second pass.<br><br>Next step: <a href="er-to-relational.html" style="color:var(--forest-deep)">convert your ER diagram into tables with the ER &rarr; Relational Mapping Handbook &rarr;</a></p>
 
 </body>
 </html>
