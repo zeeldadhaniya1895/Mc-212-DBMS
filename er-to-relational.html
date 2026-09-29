@@ -228,8 +228,8 @@
 <body>
 
 <header class="cover">
-  <p class="nav-back"><a href="index.html">&larr; Back to the ER &amp; EER Modeling course</a></p>
-  <p class="kicker">A companion handbook in logical database design</p>
+  <p class="nav-back"><a href="index.html">&larr; MC 212 DBMS Handbook</a> &nbsp;&middot;&nbsp; <a href="er-diagram.html">Part 1: ER &amp; EER Modeling</a></p>
+  <p class="kicker">MC 212 DBMS Handbook &middot; Part 2: logical database design</p>
   <h1>From ER Diagram to Relational Schema: The Complete Mapping Handbook</h1>
   <div class="rule-ornament"></div>
   <p class="lede">Every ER and EER component you learned to draw, and exactly what it turns into as tables, primary keys, and foreign keys. Each rule comes with a diagram, the tables it produces, sample rows, SQL, and the mistakes students make most often. It starts with a single rectangle and ends with full EER schemas and exam-style table counting.</p>
@@ -1880,7 +1880,7 @@ CREATE TABLE MONITORS (
   <p class="chapter-label">Chapter Eighteen <span class="level pro">Pro</span></p>
   <h2 class="chapter-title">Worked Example: The Library System, End to End</h2>
 
-  <p>We now convert the complete Library Management diagram from the ER course (<a href="index.html#ch7">its Chapter 7, Fig. 7.1</a>). Keep that figure open in another tab. Professionals start every conversion with an <strong>inventory</strong>: a list of every component on the diagram, which then becomes a checklist to tick off.</p>
+  <p>We now convert the complete Library Management diagram from the ER course (<a href="er-diagram.html#ch7">its Chapter 7, Fig. 7.1</a>). Keep that figure open in another tab. Professionals start every conversion with an <strong>inventory</strong>: a list of every component on the diagram, which then becomes a checklist to tick off.</p>
 
   <h3>Step 0: Inventory the diagram</h3>
   <table>
@@ -2069,7 +2069,7 @@ WHERE G.Genre = 'Fantasy';</pre>
   <p class="chapter-label">Chapter Nineteen <span class="level pro">Pro</span></p>
   <h2 class="chapter-title">Worked Example: The Hospital EER Diagram</h2>
 
-  <p>Now the full EER example from the ER course (<a href="index.html#ch12">its Chapter 12, Fig. 12.1</a>). The requirement: every staff member has a Staff_ID, Name, and Phone. Each is <em>either</em> a doctor or a nurse, never both, with no other category (disjoint, total). Doctors have a Specialization, nurses a Shift_Timing. A doctor treats many patients (1:N), recording a Diagnosis. Patients have Patient_ID and Name.</p>
+  <p>Now the full EER example from the ER course (<a href="er-diagram.html#ch12">its Chapter 12, Fig. 12.1</a>). The requirement: every staff member has a Staff_ID, Name, and Phone. Each is <em>either</em> a doctor or a nurse, never both, with no other category (disjoint, total). Doctors have a Specialization, nurses a Shift_Timing. A doctor treats many patients (1:N), recording a Diagnosis. Patients have Patient_ID and Name.</p>
 
   <h3>Step 0: Inventory</h3>
   <table>
@@ -2611,7 +2611,7 @@ DEPENDENT (Dep_Name PK, Emp_ID FK, Relationship)</pre>
 </section>
 
 <hr class="divider">
-<p class="endnote">End of handbook. When a mapping feels awkward, re-read the ER diagram before blaming the rules. Awkward tables usually mean the diagram needs another look.<br><br><a href="index.html">&larr; Return to the ER &amp; EER Modeling course</a> &nbsp;&middot;&nbsp; <a href="#ch3">Jump to the master map</a></p>
+<p class="endnote">End of handbook. When a mapping feels awkward, re-read the ER diagram before blaming the rules. Awkward tables usually mean the diagram needs another look.<br><br><a href="index.html">&larr; Back to the MC 212 DBMS Handbook</a> &nbsp;&middot;&nbsp; <a href="er-diagram.html">Part 1: ER &amp; EER Modeling</a> &nbsp;&middot;&nbsp; <a href="#ch3">Jump to the master map</a></p>
 
 <script>
 /* Minimal SQL highlighter for pre.sql blocks: keywords, strings, comments. */
