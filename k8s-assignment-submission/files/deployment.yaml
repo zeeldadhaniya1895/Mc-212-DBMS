@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campusconnect
+  labels:
+    app: campusconnect
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: campusconnect
+  template:
+    metadata:
+      labels:
+        app: campusconnect
+    spec:
+      containers:
+        - name: campusconnect
+          image: campusconnect:v2
+          imagePullPolicy: IfNotPresent   # use the image loaded into the nodes
+          ports:
+            - containerPort: 8000         # the port Flask listens on (EXPOSE 8000)
+          readinessProbe:                 # send traffic only when /health answers
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:                  # restart the container if it hangs
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
