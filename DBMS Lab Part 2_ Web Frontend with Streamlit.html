@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>DBMS Lab Part 2: Web Frontend with Streamlit</title>
+    <style>
+        :root {
+            --bg: #f3f6f9;
+            --card: #fff;
+            --ink: #14213d;
+            --muted: #52607a;
+            --line: #d5dde8;
+            --accent: #0b6e8a;
+            --hi: #f2a900;
+            --code-bg: #101b2d;
+            --code-ink: #e6edf7;
+            --tip: #e8f4f8;
+            --warn: #fff4d6;
+            box-sizing: border-box;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            color-scheme: light
+        }
+
+        @media (prefers-color-scheme:dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #0d1420;
+                --card: #152033;
+                --ink: #e6edf7;
+                --muted: #9fb0c9;
+                --line: #27364f;
+                --accent: #4fc1de;
+                --hi: #f2b930;
+                --code-bg: #08101c;
+                --code-ink: #e6edf7;
+                --tip: #12303b;
+                --warn: #3a2f10;
+                color-scheme: dark
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0d1420;
+            --card: #152033;
+            --ink: #e6edf7;
+            --muted: #9fb0c9;
+            --line: #27364f;
+            --accent: #4fc1de;
+            --hi: #f2b930;
+            --code-bg: #08101c;
+            --code-ink: #e6edf7;
+            --tip: #12303b;
+            --warn: #3a2f10;
+            color-scheme: dark
+        }
+
+        html {
+            scroll-padding-top: env(safe-area-inset-top, 0px);
+            scroll-behavior: smooth
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 17px/1.65 "Source Serif 4", Georgia, "Times New Roman", serif
+        }
+
+        h1,
+        h2,
+        h3,
+        nav,
+        .btn,
+        .step-n {
+            font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+        }
+
+        .wrap {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 0 20px
+        }
+
+        header {
+            padding: 56px 0 28px;
+            border-bottom: 3px solid var(--hi)
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.1;
+            margin: 0 0 14px;
+            letter-spacing: -.02em
+        }
+
+        header p {
+            color: var(--muted);
+            max-width: 60ch;
+            margin: 0
+        }
+
+        nav {
+            position: sticky;
+            top: env(safe-area-inset-top, 0px);
+            background: var(--bg);
+            border-bottom: 1px solid var(--line);
+            z-index: 5;
+            overflow-x: auto;
+            white-space: nowrap
+        }
+
+        nav .wrap {
+            display: flex;
+            gap: 4px;
+            padding-top: 8px;
+            padding-bottom: 8px
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .9rem;
+            padding: 6px 10px;
+            border-radius: 6px
+        }
+
+        nav a:hover,
+        nav a:focus-visible {
+            background: var(--card);
+            color: var(--accent);
+            outline: none
+        }
+
+        section {
+            padding: 40px 0 8px
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            margin: 0 0 6px;
+            display: flex;
+            gap: 12px;
+            align-items: baseline;
+            flex-wrap: wrap
+        }
+
+        .step-n {
+            background: var(--ink);
+            color: var(--bg);
+            font-size: .85rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 99px
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin: 26px 0 6px
+        }
+
+        p {
+            margin: 10px 0
+        }
+
+        .lead {
+            color: var(--muted)
+        }
+
+        pre {
+            position: relative;
+            background: var(--code-bg);
+            color: var(--code-ink);
+            padding: 16px 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font: 14px/1.55 "JetBrains Mono", ui-monospace, Consolas, Menlo, monospace;
+            margin: 14px 0;
+            max-width: 100%
+        }
+
+        code {
+            font-family: "JetBrains Mono", ui-monospace, Consolas, Menlo, monospace;
+            font-size: .88em;
+            background: var(--tip);
+            padding: 1px 6px;
+            border-radius: 4px
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: inherit
+        }
+
+        .btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ffffff1f;
+            color: var(--code-ink);
+            border: 1px solid #ffffff40;
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 3px 9px;
+            cursor: pointer
+        }
+
+        .btn:hover,
+        .btn:focus-visible {
+            background: #ffffff40
+        }
+
+        .note {
+            border-left: 4px solid var(--accent);
+            background: var(--tip);
+            padding: 10px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 16px 0
+        }
+
+        .warn {
+            border-left-color: var(--hi);
+            background: var(--warn)
+        }
+
+        .note p {
+            margin: 4px 0
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-family: system-ui, sans-serif;
+            font-size: .92rem
+        }
+
+        .tw {
+            overflow-x: auto;
+            margin: 14px 0
+        }
+
+        th,
+        td {
+            border: 1px solid var(--line);
+            padding: 8px 10px;
+            text-align: left;
+            vertical-align: top
+        }
+
+        th {
+            background: var(--card)
+        }
+
+        ul,
+        ol {
+            padding-left: 22px
+        }
+
+        li {
+            margin: 5px 0
+        }
+
+        .bx {
+            fill: var(--card);
+            stroke: var(--accent);
+            stroke-width: 2
+        }
+
+        .tx {
+            fill: var(--ink);
+            font: 14px system-ui, sans-serif
+        }
+
+        .ar {
+            stroke: var(--muted);
+            stroke-width: 2;
+            fill: none
+        }
+
+        svg.diagram {
+            width: 100%;
+            height: auto;
+            margin: 14px 0
+        }
+
+        details {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 14px;
+            margin: 10px 0
+        }
+
+        summary {
+            cursor: pointer;
+            font-family: system-ui, sans-serif;
+            font-weight: 600
+        }
+
+        details[open] summary {
+            margin-bottom: 6px
+        }
+
+        @media print {
+
+            nav,
+            .btn {
+                display: none
+            }
+
+            details {
+                break-inside: avoid
+            }
+
+            body {
+                font-size: 12pt
+            }
+        }
+
+        footer {
+            padding: 40px 0 60px;
+            color: var(--muted);
+            font-size: .9rem
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="wrap">
+            <h1>Part 2: Build a web frontend with Streamlit</h1>
+            <p>In Part 1 students built a desktop window. Now they build a real web page, running in the browser, using
+                only Python. The same PostgreSQL database and the same <code>db_config.py</code> are reused, so nothing
+                from Part 1 is wasted.</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="wrap">
+            <a href="#why">Why Streamlit</a><a href="#setup">Setup</a><a href="#model">How it works</a><a
+                href="#s1">Hello</a><a href="#s2">Widgets</a><a href="#s3">Show data</a><a href="#s4">Add</a><a
+                href="#s5">Full app</a><a href="#s6">Relations</a><a href="#s7">Login</a><a href="#quiz">Quiz</a><a
+                href="#tasks">Tasks</a><a href="#teacher">Answers and marking</a>
+        </div>
+    </nav>
+
+    <main class="wrap">
+
+        <section id="why">
+            <h2>Why Streamlit?</h2>
+            <p>Normal web development needs HTML, CSS, JavaScript and a server framework before anything works.
+                <strong>Streamlit</strong> skips all of that. Students write a normal Python script, and each Python
+                line such as <code>st.text_input(...)</code> becomes a web widget. It also displays tables and charts
+                directly from data, which suits a database course.</p>
+            <div class="tw">
+                <table>
+                    <tr>
+                        <th></th>
+                        <th>Tkinter (Part 1)</th>
+                        <th>Streamlit (Part 2)</th>
+                    </tr>
+                    <tr>
+                        <td>Runs as</td>
+                        <td>Desktop window</td>
+                        <td>Web page in the browser</td>
+                    </tr>
+                    <tr>
+                        <td>Show a table</td>
+                        <td>Build a <code>Treeview</code> by hand</td>
+                        <td><code>st.dataframe(df)</code></td>
+                    </tr>
+                    <tr>
+                        <td>Layout code</td>
+                        <td>Frames, grid, pack</td>
+                        <td>Widgets appear in the order you write them</td>
+                    </tr>
+                    <tr>
+                        <td>Charts</td>
+                        <td>Needs extra libraries</td>
+                        <td><code>st.bar_chart(df)</code></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="note">
+                <p><strong>Next step after this lab:</strong> students who want full control over HTML pages can move to
+                    Flask. The database code they learn here carries over unchanged.</p>
+            </div>
+        </section>
+
+        <section id="setup">
+            <h2>Setup</h2>
+            <ol>
+                <li>Work in the same <code>student_lab</code> folder from Part 1. It must already contain
+                    <code>db_config.py</code> and a working <code>students</code> table.</li>
+                <li>Install the libraries: <code>pip install streamlit pandas</code></li>
+                <li>Create <code>db.py</code>. It holds the one database helper that every web page will import:</li>
+            </ol>
+            <pre><code>import psycopg2
+from db_config import DB_SETTINGS
+
+def run(sql, params=(), fetch=False):
+    """Connect, run one statement, commit, close. Returns rows if fetch=True."""
+    conn = psycopg2.connect(**DB_SETTINGS)
+    try:
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        rows = cur.fetchall() if fetch else None
+        conn.commit()
+        return rows
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()</code></pre>
+            <p>This is the same <code>run()</code> function from the Part 1 desktop app. Pulling it into its own file
+                means Tkinter, Streamlit or any later project can import it.</p>
+        </section>
+
+        <section id="model">
+            <h2>The one idea to understand first</h2>
+            <svg class="diagram" viewBox="0 0 760 124" role="img"
+                aria-label="The browser talks to the Streamlit page, which calls db.py and psycopg2 to reach PostgreSQL">
+                <defs>
+                    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                        orient="auto-start-reverse">
+                        <path d="M0 0L10 5L0 10z" style="fill:var(--muted)" />
+                    </marker>
+                </defs>
+                <rect class="bx" x="10" y="16" width="140" height="64" rx="8" /><text class="tx" x="80" y="44"
+                    text-anchor="middle">Browser</text><text class="tx" x="80" y="64" text-anchor="middle">student
+                    clicks</text>
+                <rect class="bx" x="210" y="16" width="140" height="64" rx="8" /><text class="tx" x="280" y="44"
+                    text-anchor="middle">Streamlit page</text><text class="tx" x="280" y="64"
+                    text-anchor="middle">web_app.py</text>
+                <rect class="bx" x="410" y="16" width="140" height="64" rx="8" /><text class="tx" x="480" y="44"
+                    text-anchor="middle">db.py</text><text class="tx" x="480" y="64" text-anchor="middle">run() +
+                    psycopg2</text>
+                <rect class="bx" x="610" y="16" width="140" height="64" rx="8" /><text class="tx" x="680" y="44"
+                    text-anchor="middle">PostgreSQL</text><text class="tx" x="680" y="64" text-anchor="middle">students
+                    table</text>
+                <line class="ar" x1="152" y1="48" x2="208" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+                <line class="ar" x1="352" y1="48" x2="408" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+                <line class="ar" x1="552" y1="48" x2="608" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+                <text class="tx" x="380" y="108" text-anchor="middle">A click reruns the script top to bottom, and fresh
+                    rows flow back to the page</text>
+            </svg>
+            <p>A Streamlit script runs <strong>from top to bottom every time the user clicks or types
+                    something</strong>. Widgets are just function calls that return the current value. A button returns
+                <code>True</code> only during the run caused by its click.</p>
+            <ul>
+                <li>You do not write event handlers or <code>command=</code> callbacks like in Tkinter.</li>
+                <li>Order matters. If you show a table before the code that inserts a row, the table shows old data. Run
+                    the database change first, then read and display.</li>
+                <li>To save a file and see the effect, click <strong>Always rerun</strong> in the top-right corner of
+                    the page.</li>
+            </ul>
+        </section>
+
+        <section id="s1">
+            <h2><span class="step-n">Step 1</span>Hello, web page</h2>
+            <p>Create <code>web_step1.py</code>:</p>
+            <pre><code>import streamlit as st
+
+st.title("My first web app")
+
+name = st.text_input("Your name")
+if st.button("Greet"):
+    st.success("Hello, " + name)</code></pre>
+            <p>Start it from the terminal:</p>
+            <pre><code>streamlit run web_step1.py</code></pre>
+            <p>The browser opens at <code>http://localhost:8501</code>. Type a name, click the button, then edit the
+                code, save, and watch the page update. Stop the server with <code>Ctrl+C</code> in the terminal.</p>
+            <div class="note warn">
+                <p>If the terminal says <code>streamlit</code> is not recognized, run it as
+                    <code>python -m streamlit run web_step1.py</code>.</p>
+            </div>
+        </section>
+
+        <section id="s2">
+            <h2><span class="step-n">Step 2</span>The widgets you will use</h2>
+            <div class="tw">
+                <table>
+                    <tr>
+                        <th>Widget</th>
+                        <th>Example</th>
+                        <th>Returns</th>
+                    </tr>
+                    <tr>
+                        <td>Text box</td>
+                        <td><code>st.text_input("Name")</code></td>
+                        <td>A string</td>
+                    </tr>
+                    <tr>
+                        <td>Number box</td>
+                        <td><code>st.number_input("Marks", 0, 100)</code></td>
+                        <td>A number</td>
+                    </tr>
+                    <tr>
+                        <td>Dropdown</td>
+                        <td><code>st.selectbox("Branch", ["CSE", "ECE"])</code></td>
+                        <td>The chosen item</td>
+                    </tr>
+                    <tr>
+                        <td>Button</td>
+                        <td><code>st.button("Save")</code></td>
+                        <td><code>True</code> on the click</td>
+                    </tr>
+                    <tr>
+                        <td>Form</td>
+                        <td><code>with st.form("f"):</code></td>
+                        <td>Groups widgets, sends all at once</td>
+                    </tr>
+                    <tr>
+                        <td>Table</td>
+                        <td><code>st.dataframe(df)</code></td>
+                        <td>Shows a DataFrame</td>
+                    </tr>
+                    <tr>
+                        <td>Messages</td>
+                        <td><code>st.success()</code> <code>st.error()</code> <code>st.info()</code></td>
+                        <td>Coloured message bars</td>
+                    </tr>
+                    <tr>
+                        <td>Layout</td>
+                        <td><code>st.columns(3)</code> <code>st.tabs([...])</code></td>
+                        <td>Side-by-side areas and tabs</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section id="s3">
+            <h2><span class="step-n">Step 3</span>Show database rows on a web page</h2>
+            <p>Create <code>web_step3.py</code>. A <em>DataFrame</em> is a table object from the pandas library. We
+                build it from the rows PostgreSQL returns, naming the columns ourselves.</p>
+            <pre><code>import pandas as pd
+import streamlit as st
+from db import run
+
+st.title("Student Records")
+
+rows = run("SELECT id, name, branch, marks FROM students ORDER BY id", fetch=True)
+df = pd.DataFrame(rows, columns=["ID", "Name", "Branch", "Marks"])
+
+st.dataframe(df, hide_index=True)</code></pre>
+            <p>Run it with <code>streamlit run web_step3.py</code>. The table is sortable: click any column header. The
+                first version of the data page took only seven lines.</p>
+        </section>
+
+        <section id="s4">
+            <h2><span class="step-n">Step 4</span>Add a student with a form</h2>
+            <p>Create <code>web_step4.py</code>. A <code>st.form</code> waits until the user presses the submit button,
+                so the script does not rerun on every keystroke. The insert code sits <strong>before</strong> the table,
+                so the table already includes the new row.</p>
+            <pre><code>import pandas as pd
+import streamlit as st
+from db import run
+
+st.title("Student Records")
+
+with st.form("add_form", clear_on_submit=True):
+    name = st.text_input("Name")
+    branch = st.selectbox("Branch", ["CSE", "ECE", "EEE", "MECH", "CIVIL"])
+    marks = st.number_input("Marks", min_value=0, max_value=100, step=1)
+    submitted = st.form_submit_button("Add student")
+
+if submitted:
+    if not name.strip():
+        st.error("Name is required.")
+    else:
+        run("INSERT INTO students (name, branch, marks) VALUES (%s, %s, %s)",
+            (name.strip(), branch, int(marks)))
+        st.success("Added " + name.strip())
+
+rows = run("SELECT id, name, branch, marks FROM students ORDER BY id", fetch=True)
+st.dataframe(pd.DataFrame(rows, columns=["ID", "Name", "Branch", "Marks"]), hide_index=True)</code></pre>
+            <div class="note">
+                <p><strong>Still true from Part 1:</strong> use <code>%s</code> placeholders, never f-strings, so user
+                    input cannot inject SQL.</p>
+            </div>
+        </section>
+
+        <section id="s5">
+            <h2><span class="step-n">Step 5</span>The full app: view, search, add, edit, delete</h2>
+            <p>Save as <code>web_app.py</code> and run <code>streamlit run web_app.py</code>. It has summary numbers, a
+                chart, and three tabs.</p>
+            <pre><code>import pandas as pd
+import streamlit as st
+from db import run
+
+BRANCHES = ["CSE", "ECE", "EEE", "MECH", "CIVIL"]
+
+st.set_page_config(page_title="Student Records", page_icon="🎓", layout="wide")
+st.title("🎓 Student Records")
+
+# Show a message that was saved before the page reran
+if "flash" in st.session_state:
+    st.success(st.session_state.pop("flash"))
+
+def load(search=""):
+    rows = run("SELECT id, name, branch, marks FROM students "
+               "WHERE name ILIKE %s ORDER BY id", ("%" + search + "%",), fetch=True)
+    return pd.DataFrame(rows, columns=["id", "name", "branch", "marks"])
+
+def done(message):
+    """Remember a message, then rerun so every table shows fresh data."""
+    st.session_state["flash"] = message
+    st.rerun()
+
+all_df = load()
+
+c1, c2, c3 = st.columns(3)
+c1.metric("Students", len(all_df))
+c2.metric("Average marks", round(all_df["marks"].mean(), 1) if len(all_df) else 0)
+c3.metric("Highest marks", int(all_df["marks"].max()) if len(all_df) else 0)
+
+tab_view, tab_add, tab_edit = st.tabs(["View", "Add student", "Edit or delete"])
+
+with tab_view:
+    search = st.text_input("Search by name", key="search")
+    st.dataframe(load(search), hide_index=True)
+    if len(all_df):
+        st.subheader("Average marks by branch")
+        st.bar_chart(all_df.groupby("branch")["marks"].mean())
+
+with tab_add:
+    with st.form("add_form", clear_on_submit=True):
+        new_name = st.text_input("Name", key="add_name")
+        new_branch = st.selectbox("Branch", BRANCHES, key="add_branch")
+        new_marks = st.number_input("Marks", 0, 100, key="add_marks")
+        add_clicked = st.form_submit_button("Add student")
+    if add_clicked:
+        if not new_name.strip():
+            st.error("Name is required.")
+        else:
+            run("INSERT INTO students (name, branch, marks) VALUES (%s, %s, %s)",
+                (new_name.strip(), new_branch, int(new_marks)))
+            done("Added " + new_name.strip())
+
+with tab_edit:
+    if all_df.empty:
+        st.info("No students yet. Add one first.")
+    else:
+        labels = {int(r.id): f"{r.name} ({r.branch})" for r in all_df.itertuples()}
+        sid = st.selectbox("Choose a student", list(labels),
+                           format_func=lambda i: labels[i], key="edit_pick")
+        row = all_df[all_df["id"] == sid].iloc[0]
+
+        with st.form("edit_form"):
+            e_name = st.text_input("Name", value=row["name"], key=f"e_name_{sid}")
+            e_branch = st.selectbox(
+                "Branch", BRANCHES, key=f"e_branch_{sid}",
+                index=BRANCHES.index(row["branch"]) if row["branch"] in BRANCHES else 0)
+            e_marks = st.number_input("Marks", 0, 100, int(row["marks"]), key=f"e_marks_{sid}")
+            save = st.form_submit_button("Save changes")
+        if save:
+            run("UPDATE students SET name=%s, branch=%s, marks=%s WHERE id=%s",
+                (e_name.strip(), e_branch, int(e_marks), int(sid)))
+            done("Student updated")
+
+        st.divider()
+        sure = st.checkbox("I am sure I want to delete this student", key=f"sure_{sid}")
+        if st.button("Delete student", disabled=not sure):
+            run("DELETE FROM students WHERE id=%s", (int(sid),))
+            done("Student deleted")</code></pre>
+            <h3>What students should notice</h3>
+            <ul>
+                <li><code>load()</code> is the only function that reads the table, and <code>run()</code> from
+                    <code>db.py</code> does all the database work. Same pattern as Part 1.</li>
+                <li><code>done()</code> uses <code>st.rerun()</code> so the metrics, chart and table refresh right after
+                    a change. <code>st.session_state</code> keeps the success message across that rerun.</li>
+                <li>Each widget has a unique <code>key</code>. Without keys, two widgets with the same label can clash.
+                </li>
+                <li>The delete button stays disabled until the checkbox is ticked. A small safety step, and easy to
+                    write.</li>
+                <li>Run pgAdmin next to the browser to show that every click changes real rows.</li>
+            </ul>
+            <div class="note warn">
+                <p><strong>Share the app on the lab network:</strong> run
+                    <code>streamlit run web_app.py --server.address 0.0.0.0</code>, then other computers open
+                    <code>http://TEACHER-IP:8501</code>. Only do this on a trusted network, because anyone who opens the
+                    page can edit the data.</p>
+            </div>
+        </section>
+
+        <section id="s6">
+            <h2><span class="step-n">Step 6</span>Upgrade: a second table and a JOIN</h2>
+            <p>Real databases have related tables. We add a <code>departments</code> table and link each student to it
+                with a <strong>foreign key</strong> (<code>dept_id</code>). Create <code>setup_v2.py</code> and run it
+                once with <code>python setup_v2.py</code>:</p>
+            <pre><code>from db import run
+
+steps = [
+    """CREATE TABLE IF NOT EXISTS departments (
+           id SERIAL PRIMARY KEY,
+           name VARCHAR(50) UNIQUE NOT NULL)""",
+    "INSERT INTO departments (name) VALUES ('CSE'),('ECE'),('EEE'),('MECH'),('CIVIL') ON CONFLICT DO NOTHING",
+    "ALTER TABLE students ADD COLUMN IF NOT EXISTS dept_id INTEGER REFERENCES departments(id)",
+    "UPDATE students SET dept_id = d.id FROM departments d WHERE students.branch = d.name",
+]
+for sql in steps:
+    run(sql)
+print("Upgrade done")</code></pre>
+            <p>Now change <code>web_app.py</code> in four places so the app reads departments through a JOIN:</p>
+            <pre><code># 1. Replace the BRANCHES line: dropdown choices now come from the database
+BRANCHES = [r[0] for r in run("SELECT name FROM departments ORDER BY name", fetch=True)]
+
+# 2. Replace the query inside load(): the JOIN returns the department name
+rows = run("""SELECT s.id, s.name, d.name, s.marks
+              FROM students s LEFT JOIN departments d ON d.id = s.dept_id
+              WHERE s.name ILIKE %s ORDER BY s.id""", ("%" + search + "%",), fetch=True)
+
+# 3. Replace the INSERT: it now also stores dept_id
+run("INSERT INTO students (name, branch, marks, dept_id) "
+    "VALUES (%s, %s, %s, (SELECT id FROM departments WHERE name = %s))",
+    (new_name.strip(), new_branch, int(new_marks), new_branch))
+
+# 4. Replace the UPDATE the same way
+run("UPDATE students SET name=%s, branch=%s, marks=%s, "
+    "dept_id=(SELECT id FROM departments WHERE name = %s) WHERE id=%s",
+    (e_name.strip(), e_branch, int(e_marks), e_branch, int(sid)))</code></pre>
+            <p>Then add a summary table at the end of the View tab, built with <code>JOIN</code> and
+                <code>GROUP BY</code>:</p>
+            <pre><code>rows = run("""SELECT d.name, COUNT(s.id), ROUND(AVG(s.marks), 1)
+              FROM departments d LEFT JOIN students s ON s.dept_id = d.id
+              GROUP BY d.name ORDER BY d.name""", fetch=True)
+st.subheader("Department summary")
+st.dataframe(pd.DataFrame(rows, columns=["Department", "Students", "Average marks"]), hide_index=True)</code></pre>
+            <div class="note">
+                <p><strong>Discussion question:</strong> the table now stores the branch twice, as text in
+                    <code>branch</code> and as a number in <code>dept_id</code>. Why is that poor design? (Answer:
+                    redundancy can make the two disagree. In a normalized design you would drop <code>branch</code>. We
+                    keep it here only so the Part 2 app keeps working.)</p>
+            </div>
+            <details>
+                <summary>Why LEFT JOIN and not JOIN?</summary>
+                <p>A plain JOIN drops any student whose <code>dept_id</code> is empty. LEFT JOIN keeps every student and
+                    shows an empty department instead, so no row silently disappears from the table.</p>
+            </details>
+        </section>
+
+        <section id="s7">
+            <h2><span class="step-n">Step 7</span>Upgrade: a login page</h2>
+            <p>Only signed-in users should edit data. Passwords are never stored as plain text. We store a
+                <strong>salted hash</strong>, a one-way scrambled value, so even a stolen table does not reveal the
+                passwords. Create <code>auth.py</code>:</p>
+            <pre><code>import hashlib, hmac, os
+from db import run
+
+def hash_password(password, salt=None):
+    salt = salt or os.urandom(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 200_000)
+    return salt.hex() + ":" + digest.hex()
+
+def check_password(password, stored):
+    salt_hex, digest_hex = stored.split(":")
+    new = hash_password(password, bytes.fromhex(salt_hex)).split(":")[1]
+    return hmac.compare_digest(new, digest_hex)
+
+def create_user(username, password):
+    run("INSERT INTO users (username, password_hash) VALUES (%s, %s) "
+        "ON CONFLICT (username) DO NOTHING", (username, hash_password(password)))
+
+def login_user(username, password):
+    rows = run("SELECT password_hash FROM users WHERE username = %s", (username,), fetch=True)
+    return bool(rows) and check_password(password, rows[0][0])</code></pre>
+            <p>Create <code>setup_users.py</code>, run it once, then change the password <code>lab123</code> to your
+                own:</p>
+            <pre><code>from db import run
+from auth import create_user
+
+run("""CREATE TABLE IF NOT EXISTS users (
+       id SERIAL PRIMARY KEY,
+       username VARCHAR(50) UNIQUE NOT NULL,
+       password_hash TEXT NOT NULL)""")
+create_user("admin", "lab123")
+print("Admin user ready")</code></pre>
+            <p>In <code>web_app.py</code>, paste this block <strong>right after</strong>
+                <code>st.set_page_config(...)</code> and before <code>st.title(...)</code>:</p>
+            <pre><code>from auth import login_user
+
+if not st.session_state.get("user"):
+    st.title("Sign in")
+    with st.form("login"):
+        u = st.text_input("Username", key="login_user")
+        p = st.text_input("Password", type="password", key="login_pass")
+        go = st.form_submit_button("Sign in")
+    if go:
+        if login_user(u, p):
+            st.session_state["user"] = u
+            st.rerun()
+        else:
+            st.error("Wrong username or password.")
+    st.stop()
+
+st.sidebar.write("Signed in as " + st.session_state["user"])
+if st.sidebar.button("Sign out"):
+    del st.session_state["user"]
+    st.rerun()</code></pre>
+            <ul>
+                <li><code>st.stop()</code> ends the script early, so nothing below the login form is shown or run until
+                    the user signs in.</li>
+                <li><code>st.session_state</code> remembers the signed-in user between reruns of the script.</li>
+            </ul>
+            <div class="note warn">
+                <p>This is a learning login, not production security. Streamlit forgets the session when the browser tab
+                    is refreshed, and there is no limit on wrong attempts. Real systems add HTTPS, lockouts and a proven
+                    authentication service.</p>
+            </div>
+        </section>
+
+        <section id="quiz">
+            <h2>Check yourself</h2>
+            <p class="lead">Students answer first, then click the question to see the answer.</p>
+            <details>
+                <summary>1. The table shows old data right after an insert. What is the most likely cause?</summary>
+                <p>The display code runs before the insert code. A Streamlit script runs top to bottom, so the write
+                    must come first, or the code must call <code>st.rerun()</code>.</p>
+            </details>
+            <details>
+                <summary>2. Why do we write <code>%s</code> instead of putting the name into the SQL with an f-string?
+                </summary>
+                <p>An f-string lets a user type SQL into the text box (SQL injection). With <code>%s</code> the driver
+                    sends the value separately, so it is always treated as data.</p>
+            </details>
+            <details>
+                <summary>3. What does <code>st.session_state</code> do?</summary>
+                <p>It stores values, such as the signed-in user or a message, so they survive the script rerunning after
+                    each click.</p>
+            </details>
+            <details>
+                <summary>4. Why store a password hash instead of the password?</summary>
+                <p>A hash cannot be reversed. If someone copies the users table, they still do not have the passwords.
+                    The salt makes two equal passwords produce different hashes.</p>
+            </details>
+            <details>
+                <summary>5. A student has no department. Which join still shows that student, JOIN or LEFT JOIN?
+                </summary>
+                <p>LEFT JOIN. It keeps every row from the left table (students) even when there is no match on the
+                    right.</p>
+            </details>
+            <details>
+                <summary>6. Why do we write <code>int(sid)</code> before sending a value from a DataFrame to PostgreSQL?
+                </summary>
+                <p>pandas gives NumPy numbers, and the psycopg2 driver cannot convert <code>numpy.int64</code>. Wrapping
+                    the value in <code>int()</code> gives a plain Python integer.</p>
+            </details>
+        </section>
+
+        <section id="tasks">
+            <h2>Practice tasks and common errors</h2>
+            <h3>Tasks for students</h3>
+            <ol>
+                <li>Add a <strong>Branch filter</strong> to the View tab with <code>st.selectbox</code> and a
+                    <code>WHERE branch = %s</code> query.</li>
+                <li>Add a <strong>Download CSV</strong> button using <code>st.download_button</code> and
+                    <code>df.to_csv(index=False)</code>.</li>
+                <li>Show the top 3 students by marks in the sidebar with <code>st.sidebar</code>.</li>
+                <li>Build the same style of app for their own project tables (Library, Hospital or Inventory) with a
+                    login-free admin page.</li>
+            </ol>
+            <h3>Common errors</h3>
+            <div class="tw">
+                <table>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Likely cause and fix</th>
+                    </tr>
+                    <tr>
+                        <td><code>streamlit</code> is not recognized</td>
+                        <td>Use <code>python -m streamlit run file.py</code>, with the same Python where you installed
+                            it.</td>
+                    </tr>
+                    <tr>
+                        <td><code>can't adapt type 'numpy.int64'</code></td>
+                        <td>Values from a DataFrame are NumPy numbers. Wrap them: <code>int(sid)</code>.</td>
+                    </tr>
+                    <tr>
+                        <td>Table shows old data after a change</td>
+                        <td>The display code ran before the database change, or <code>st.rerun()</code> is missing. Do
+                            the write first, then read.</td>
+                    </tr>
+                    <tr>
+                        <td><code>DuplicateWidgetID</code> / <code>DuplicateElementId</code></td>
+                        <td>Two widgets have the same label and settings. Give each a different <code>key="..."</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Page keeps asking to rerun</td>
+                        <td>Click <strong>Always rerun</strong> in the top-right corner.</td>
+                    </tr>
+                    <tr>
+                        <td>Port 8501 already in use</td>
+                        <td>An old server is still running. Stop it with <code>Ctrl+C</code>, or use
+                            <code>--server.port 8502</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>password authentication failed</code>, <code>connection refused</code></td>
+                        <td>Same database settings problems as Part 1. Check <code>db_config.py</code> and that
+                            PostgreSQL is running.</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+
+
+    <script>
+        document.querySelectorAll("pre").forEach(function (pre) {
+            var b = document.createElement("button");
+            b.className = "btn"; b.type = "button"; b.textContent = "Copy";
+            b.addEventListener("click", function () {
+                var t = pre.querySelector("code").innerText;
+                try {
+                    navigator.clipboard.writeText(t).then(function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy" }, 1500) });
+                } catch (e) { b.textContent = "Select and copy" }
+            });
+            pre.appendChild(b);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>DBMS Lab Part 3: Node.js, PostgreSQL and a JavaScript Frontend</title>
+  <style>
+    :root {
+      --bg: #f3f6f9;
+      --card: #fff;
+      --ink: #14213d;
+      --muted: #52607a;
+      --line: #d5dde8;
+      --accent: #0b6e8a;
+      --hi: #f2a900;
+      --code-bg: #101b2d;
+      --code-ink: #e6edf7;
+      --tip: #e8f4f8;
+      --warn: #fff4d6;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      color-scheme: light
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0d1420;
+        --card: #152033;
+        --ink: #e6edf7;
+        --muted: #9fb0c9;
+        --line: #27364f;
+        --accent: #4fc1de;
+        --hi: #f2b930;
+        --code-bg: #08101c;
+        --code-ink: #e6edf7;
+        --tip: #12303b;
+        --warn: #3a2f10;
+        color-scheme: dark
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0d1420;
+      --card: #152033;
+      --ink: #e6edf7;
+      --muted: #9fb0c9;
+      --line: #27364f;
+      --accent: #4fc1de;
+      --hi: #f2b930;
+      --code-bg: #08101c;
+      --code-ink: #e6edf7;
+      --tip: #12303b;
+      --warn: #3a2f10;
+      color-scheme: dark
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+      scroll-behavior: smooth
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 17px/1.65 "Source Serif 4", Georgia, "Times New Roman", serif
+    }
+
+    h1,
+    h2,
+    h3,
+    nav,
+    .btn,
+    .step-n {
+      font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+    }
+
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 20px
+    }
+
+    header {
+      padding: 56px 0 28px;
+      border-bottom: 3px solid var(--hi)
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      margin: 0 0 14px;
+      letter-spacing: -.02em
+    }
+
+    header p {
+      color: var(--muted);
+      max-width: 60ch;
+      margin: 0
+    }
+
+    nav {
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      z-index: 5;
+      overflow-x: auto;
+      white-space: nowrap
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 4px;
+      padding-top: 8px;
+      padding-bottom: 8px
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .9rem;
+      padding: 6px 10px;
+      border-radius: 6px
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      background: var(--card);
+      color: var(--accent);
+      outline: none
+    }
+
+    section {
+      padding: 40px 0 8px
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin: 0 0 6px;
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap
+    }
+
+    .step-n {
+      background: var(--ink);
+      color: var(--bg);
+      font-size: .85rem;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 99px
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 26px 0 6px
+    }
+
+    p {
+      margin: 10px 0
+    }
+
+    .lead {
+      color: var(--muted)
+    }
+
+    pre {
+      position: relative;
+      background: var(--code-bg);
+      color: var(--code-ink);
+      padding: 16px 18px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font: 14px/1.55 "JetBrains Mono", ui-monospace, Consolas, Menlo, monospace;
+      margin: 14px 0;
+      max-width: 100%
+    }
+
+    code {
+      font-family: "JetBrains Mono", ui-monospace, Consolas, Menlo, monospace;
+      font-size: .88em;
+      background: var(--tip);
+      padding: 1px 6px;
+      border-radius: 4px
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: inherit
+    }
+
+    .btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ffffff1f;
+      color: var(--code-ink);
+      border: 1px solid #ffffff40;
+      border-radius: 6px;
+      font-size: 12px;
+      padding: 3px 9px;
+      cursor: pointer
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      background: #ffffff40
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--tip);
+      padding: 10px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0
+    }
+
+    .warn {
+      border-left-color: var(--hi);
+      background: var(--warn)
+    }
+
+    .note p {
+      margin: 4px 0
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-family: system-ui, sans-serif;
+      font-size: .92rem
+    }
+
+    .tw {
+      overflow-x: auto;
+      margin: 14px 0
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top
+    }
+
+    th {
+      background: var(--card)
+    }
+
+    ul,
+    ol {
+      padding-left: 22px
+    }
+
+    li {
+      margin: 5px 0
+    }
+
+    .out {
+      background: var(--card);
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font: 14px/1.5 ui-monospace, Consolas, monospace;
+      white-space: pre-wrap;
+      margin: 10px 0;
+      overflow-x: auto
+    }
+
+    .bx {
+      fill: var(--card);
+      stroke: var(--accent);
+      stroke-width: 2
+    }
+
+    .tx {
+      fill: var(--ink);
+      font: 14px system-ui, sans-serif
+    }
+
+    .ar {
+      stroke: var(--muted);
+      stroke-width: 2;
+      fill: none
+    }
+
+    svg.diagram {
+      width: 100%;
+      height: auto;
+      margin: 14px 0
+    }
+
+    details {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin: 10px 0
+    }
+
+    summary {
+      cursor: pointer;
+      font-family: system-ui, sans-serif;
+      font-weight: 600
+    }
+
+    details[open] summary {
+      margin-bottom: 6px
+    }
+
+    @media print {
+
+      nav,
+      .btn {
+        display: none
+      }
+
+      details {
+        break-inside: avoid
+      }
+
+      body {
+        font-size: 12pt
+      }
+    }
+
+    footer {
+      padding: 40px 0 60px;
+      color: var(--muted);
+      font-size: .9rem
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Part 3: Node.js, PostgreSQL and a JavaScript frontend</h1>
+      <p>The same Student Records project, built the way most web companies build it: Node.js talks to the PostgreSQL
+        database you already have, and a normal web page written in HTML and JavaScript talks to Node. Students learn
+        both sides of a real web app.</p>
+    </div>
+  </header>
+
+  <nav>
+    <div class="wrap">
+      <a href="#setup">Setup</a><a href="#js">JS basics</a><a href="#s1">Connect</a><a href="#s2">Table</a><a
+        href="#s3">Insert</a><a href="#s4">Read</a><a href="#s5">Update/Delete</a><a href="#s6">Server</a><a
+        href="#s7">API</a><a href="#s8">Frontend</a><a href="#quiz">Quiz</a><a href="#tasks">Tasks</a><a
+        href="#marking">Marking</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <section id="setup">
+      <h2>Setup</h2>
+      <p class="lead">You need Node.js 18 or newer and the PostgreSQL database and <code>students</code> table from the
+        earlier parts.</p>
+      <ol>
+        <li>Check Node: <code>node --version</code>. Install the LTS version from nodejs.org if it is missing.</li>
+        <li>Create a folder <code>student_node</code>, open a terminal inside it, and run:
+          <pre><code>npm init -y
+npm install express pg dotenv</code></pre>
+        </li>
+        <li><code>express</code> is the web server library, <code>pg</code> is the PostgreSQL driver, and
+          <code>dotenv</code> loads settings from a file.</li>
+        <li>Create the project layout. The <code>public</code> folder holds the web page that browsers receive:</li>
+      </ol>
+      <pre><code>student_node/
+  .env            (database settings, never share)
+  db.js           (one shared database connection)
+  server.js       (the web server and API)
+  public/
+    index.html    (the page)
+    app.js        (the page's JavaScript)</code></pre>
+      <p>The database settings go in <code>.env</code>. Use the same five details as in Part 1:</p>
+      <pre><code>PGHOST=localhost
+PGPORT=5432
+PGDATABASE=your_dbname
+PGUSER=postgres
+PGPASSWORD=your_password</code></pre>
+      <div class="note warn">
+        <p><strong>Security:</strong> never upload <code>.env</code> to GitHub. Put the line <code>.env</code> inside a
+          file named <code>.gitignore</code>.</p>
+      </div>
+    </section>
+
+    <section id="js">
+      <h2>JavaScript you need first</h2>
+      <div class="tw">
+        <table>
+          <tr>
+            <th>Idea</th>
+            <th>Example</th>
+            <th>Meaning</th>
+          </tr>
+          <tr>
+            <td>Variables</td>
+            <td><code>const x = 5; let y = 1;</code></td>
+            <td><code>const</code> cannot be reassigned; use <code>let</code> when it changes</td>
+          </tr>
+          <tr>
+            <td>Arrow function</td>
+            <td><code>const add = (a, b) =&gt; a + b;</code></td>
+            <td>A short way to write a function</td>
+          </tr>
+          <tr>
+            <td>Template string</td>
+            <td><code>`Hello ${name}`</code></td>
+            <td>Put values inside text with backticks</td>
+          </tr>
+          <tr>
+            <td>async / await</td>
+            <td><code>const r = await pool.query(...)</code></td>
+            <td>Wait for the database without freezing the program</td>
+          </tr>
+          <tr>
+            <td>try / catch</td>
+            <td><code>try { ... } catch (err) { ... }</code></td>
+            <td>Handle errors from awaited work</td>
+          </tr>
+          <tr>
+            <td>fetch</td>
+            <td><code>await fetch("/api/students")</code></td>
+            <td>The browser asks the server for data</td>
+          </tr>
+        </table>
+      </div>
+      <p>Database work takes time. A function that calls <code>await</code> must be declared <code>async</code>, and it
+        returns after the database answers.</p>
+
+      <h3>How this differs from the Python parts</h3>
+      <div class="tw">
+        <table>
+          <tr>
+            <th></th>
+            <th>Python (psycopg2)</th>
+            <th>Node (pg)</th>
+          </tr>
+          <tr>
+            <td>Placeholders</td>
+            <td><code>%s</code></td>
+            <td><code>$1, $2, $3</code></td>
+          </tr>
+          <tr>
+            <td>Values</td>
+            <td>a tuple <code>(a, b)</code></td>
+            <td>an array <code>[a, b]</code></td>
+          </tr>
+          <tr>
+            <td>Saving changes</td>
+            <td>call <code>conn.commit()</code></td>
+            <td>no commit needed; each <code>pool.query</code> saves on its own</td>
+          </tr>
+          <tr>
+            <td>Reading rows</td>
+            <td><code>cur.fetchall()</code></td>
+            <td><code>result.rows</code></td>
+          </tr>
+          <tr>
+            <td>Rows changed</td>
+            <td><code>cur.rowcount</code></td>
+            <td><code>result.rowCount</code></td>
+          </tr>
+          <tr>
+            <td>Connections</td>
+            <td>open and close each time</td>
+            <td>a <code>Pool</code> reuses connections</td>
+          </tr>
+        </table>
+      </div>
+      <p>The SQL itself is identical. Only the placeholder style changes. Placeholders still protect against SQL
+        injection, so never build SQL with template strings from user input.</p>
+    </section>
+
+    <section id="s1">
+      <h2><span class="step-n">Step 1</span>Connect to your database</h2>
+      <p>Create <code>db.js</code>. The <code>pg</code> library reads the <code>PG...</code> settings from
+        <code>.env</code> by itself.</p>
+      <pre><code>require("dotenv").config();
+const { Pool } = require("pg");
+
+const pool = new Pool();   // uses PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+
+module.exports = pool;</code></pre>
+      <p>Create <code>step1.js</code> to test it:</p>
+      <pre><code>const pool = require("./db");
+
+async function main() {
+  const result = await pool.query("SELECT version()");
+  console.log(result.rows[0].version);
+  await pool.end();
+}
+
+main().catch(err =&gt; {
+  console.error("Failed:", err.message);
+  pool.end();
+});</code></pre>
+      <p>Run <code>node step1.js</code>. You should see the PostgreSQL version. Fix this step before going on.
+        <code>pool.end()</code> closes connections; without it a script never finishes.</p>
+    </section>
+
+    <section id="s2">
+      <h2><span class="step-n">Step 2</span>Create the table</h2>
+      <p>If you built the table in Part 1 you can skip this. The statement is safe to run again.</p>
+      <pre><code>const pool = require("./db");
+
+async function main() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS students (
+      id     SERIAL PRIMARY KEY,
+      name   VARCHAR(100) NOT NULL,
+      branch VARCHAR(50),
+      marks  INTEGER
+    )`);
+  console.log("Table ready");
+  await pool.end();
+}
+
+main().catch(err =&gt; { console.error(err.message); pool.end(); });</code></pre>
+      <p>Save as <code>step2.js</code> and run it. Check the table in pgAdmin or with <code>\dt</code> in psql.</p>
+    </section>
+
+    <section id="s3">
+      <h2><span class="step-n">Step 3</span>Insert rows safely</h2>
+      <pre><code>const pool = require("./db");
+
+async function main() {
+  await pool.query(
+    "INSERT INTO students (name, branch, marks) VALUES ($1, $2, $3)",
+    ["Asha", "CSE", 82]
+  );
+
+  const more = [["Ravi", "ECE", 74], ["Meena", "CSE", 91]];
+  for (const row of more) {
+    await pool.query(
+      "INSERT INTO students (name, branch, marks) VALUES ($1, $2, $3)", row);
+  }
+  console.log("Rows added");
+  await pool.end();
+}
+
+main().catch(err =&gt; { console.error(err.message); pool.end(); });</code></pre>
+      <div class="note warn">
+        <p><strong>Bad:</strong> <code>`INSERT ... VALUES ('${name}')`</code> lets a user type SQL into your program.
+          <strong>Good:</strong> <code>$1, $2, $3</code> with an array of values.</p>
+      </div>
+    </section>
+
+    <section id="s4">
+      <h2><span class="step-n">Step 4</span>Read data with SELECT</h2>
+      <pre><code>const pool = require("./db");
+
+async function main() {
+  const all = await pool.query("SELECT id, name, branch, marks FROM students ORDER BY id");
+  console.table(all.rows);
+
+  const top = await pool.query(
+    "SELECT name, marks FROM students WHERE branch = $1 AND marks &gt; $2",
+    ["CSE", 80]
+  );
+  console.log(top.rows);
+  await pool.end();
+}
+
+main().catch(err =&gt; { console.error(err.message); pool.end(); });</code></pre>
+      <p>Rows arrive as an array of objects, for example <code>{ id: 1, name: "Asha", branch: "CSE", marks: 82 }</code>.
+        This is the same shape the web page will receive later as JSON.</p>
+    </section>
+
+    <section id="s5">
+      <h2><span class="step-n">Step 5</span>Update and delete</h2>
+      <pre><code>const pool = require("./db");
+
+async function main() {
+  const up = await pool.query("UPDATE students SET marks = $1 WHERE name = $2", [88, "Ravi"]);
+  console.log("Rows updated:", up.rowCount);
+
+  const del = await pool.query("DELETE FROM students WHERE id = $1", [3]);
+  console.log("Rows deleted:", del.rowCount);
+  await pool.end();
+}
+
+main().catch(err =&gt; { console.error(err.message); pool.end(); });</code></pre>
+      <div class="note">
+        <p><strong>Lab check:</strong> always use a <code>WHERE</code> clause. An UPDATE or DELETE without one changes
+          every row.</p>
+      </div>
+    </section>
+
+    <section id="s6">
+      <h2><span class="step-n">Step 6</span>Your first web server</h2>
+      <svg class="diagram" viewBox="0 0 760 124" role="img"
+        aria-label="The browser page sends fetch requests to the Express server, which uses db.js and pg to reach PostgreSQL">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" style="fill:var(--muted)" />
+          </marker>
+        </defs>
+        <rect class="bx" x="10" y="16" width="140" height="64" rx="8" /><text class="tx" x="80" y="44"
+          text-anchor="middle">Browser</text><text class="tx" x="80" y="64" text-anchor="middle">index.html +
+          app.js</text>
+        <rect class="bx" x="210" y="16" width="140" height="64" rx="8" /><text class="tx" x="280" y="44"
+          text-anchor="middle">Express</text><text class="tx" x="280" y="64" text-anchor="middle">server.js</text>
+        <rect class="bx" x="410" y="16" width="140" height="64" rx="8" /><text class="tx" x="480" y="44"
+          text-anchor="middle">db.js</text><text class="tx" x="480" y="64" text-anchor="middle">pg Pool</text>
+        <rect class="bx" x="610" y="16" width="140" height="64" rx="8" /><text class="tx" x="680" y="44"
+          text-anchor="middle">PostgreSQL</text><text class="tx" x="680" y="64" text-anchor="middle">students
+          table</text>
+        <line class="ar" x1="152" y1="48" x2="208" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+        <line class="ar" x1="352" y1="48" x2="408" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+        <line class="ar" x1="552" y1="48" x2="608" y2="48" marker-start="url(#ah)" marker-end="url(#ah)" />
+        <text class="tx" x="380" y="108" text-anchor="middle">fetch() sends a request, Express runs SQL, and the answer
+          comes back as JSON</text>
+      </svg>
+      <p>Browsers must never connect to PostgreSQL directly, because that would expose the password. The browser talks
+        to your Node server, and only the server talks to the database. Create <code>server.js</code>:</p>
+      <pre><code>const express = require("express");
+const app = express();
+
+app.get("/", (req, res) =&gt; {
+  res.send("Hello from Node");
+});
+
+app.listen(3000, () =&gt; console.log("Open http://localhost:3000"));</code></pre>
+      <p>Run <code>node server.js</code> and open <code>http://localhost:3000</code>. Stop with <code>Ctrl+C</code>.
+        While developing, <code>node --watch server.js</code> restarts the server every time you save.</p>
+      <h3>The four request types</h3>
+      <div class="tw">
+        <table>
+          <tr>
+            <th>Action</th>
+            <th>HTTP method</th>
+            <th>Our route</th>
+            <th>SQL</th>
+          </tr>
+          <tr>
+            <td>Read</td>
+            <td>GET</td>
+            <td><code>/api/students</code></td>
+            <td>SELECT</td>
+          </tr>
+          <tr>
+            <td>Create</td>
+            <td>POST</td>
+            <td><code>/api/students</code></td>
+            <td>INSERT</td>
+          </tr>
+          <tr>
+            <td>Update</td>
+            <td>PUT</td>
+            <td><code>/api/students/:id</code></td>
+            <td>UPDATE</td>
+          </tr>
+          <tr>
+            <td>Delete</td>
+            <td>DELETE</td>
+            <td><code>/api/students/:id</code></td>
+            <td>DELETE</td>
+          </tr>
+        </table>
+      </div>
+      <p>A set of routes like this is called a <strong>REST API</strong>. The part <code>:id</code> in a route is a
+        variable that arrives as <code>req.params.id</code>.</p>
+    </section>
+
+    <section id="s7">
+      <h2><span class="step-n">Step 7</span>Build the API</h2>
+      <p>Replace the contents of <code>server.js</code> with the full server. Each route validates input, runs one SQL
+        statement with placeholders, and answers in JSON.</p>
+      <pre><code>const express = require("express");
+const pool = require("./db");
+
+const app = express();
+app.use(express.json());           // read JSON sent by the browser
+app.use(express.static("public")); // serve index.html and app.js
+
+// Wrap each route so a database error returns a clean message
+const handle = fn =&gt; async (req, res) =&gt; {
+  try { await fn(req, res); }
+  catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Database error" });
+  }
+};
+
+function clean(body) {
+  const name = String(body.name || "").trim();
+  const branch = String(body.branch || "").trim();
+  const marks = Number.parseInt(body.marks, 10);
+  if (!name || Number.isNaN(marks) || marks &lt; 0 || marks &gt; 100) return null;
+  return { name, branch, marks };
+}
+const BAD = { error: "Name is required and marks must be 0 to 100." };
+
+app.get("/api/students", handle(async (req, res) =&gt; {
+  const search = "%" + (req.query.search || "") + "%";
+  const result = await pool.query(
+    "SELECT id, name, branch, marks FROM students WHERE name ILIKE $1 ORDER BY id",
+    [search]);
+  res.json(result.rows);
+}));
+
+app.get("/api/stats", handle(async (req, res) =&gt; {
+  const result = await pool.query(
+    `SELECT COUNT(*)::int AS total,
+            ROUND(AVG(marks), 1)::float AS average,
+            MAX(marks) AS highest
+     FROM students`);
+  res.json(result.rows[0]);
+}));
+
+app.post("/api/students", handle(async (req, res) =&gt; {
+  const s = clean(req.body);
+  if (!s) return res.status(400).json(BAD);
+  const result = await pool.query(
+    "INSERT INTO students (name, branch, marks) VALUES ($1, $2, $3) RETURNING *",
+    [s.name, s.branch, s.marks]);
+  res.status(201).json(result.rows[0]);
+}));
+
+app.put("/api/students/:id", handle(async (req, res) =&gt; {
+  const s = clean(req.body);
+  if (!s) return res.status(400).json(BAD);
+  const result = await pool.query(
+    "UPDATE students SET name = $1, branch = $2, marks = $3 WHERE id = $4",
+    [s.name, s.branch, s.marks, Number(req.params.id)]);
+  if (result.rowCount === 0) return res.status(404).json({ error: "Student not found" });
+  res.json({ updated: true });
+}));
+
+app.delete("/api/students/:id", handle(async (req, res) =&gt; {
+  const result = await pool.query("DELETE FROM students WHERE id = $1", [Number(req.params.id)]);
+  if (result.rowCount === 0) return res.status(404).json({ error: "Student not found" });
+  res.json({ deleted: true });
+}));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () =&gt; console.log("Open http://localhost:" + PORT));</code></pre>
+      <p>Start it with <code>node server.js</code> and test the API before building any page: open
+        <code>http://localhost:3000/api/students</code> in the browser. You should see your rows as JSON.</p>
+      <ul>
+        <li>Status codes tell the browser what happened: <code>201</code> created, <code>400</code> bad input,
+          <code>404</code> not found, <code>500</code> server error.</li>
+        <li><code>RETURNING *</code> makes PostgreSQL send back the new row, including its generated id.</li>
+        <li><code>COUNT(*)::int</code> converts the count to a normal number. Without it, <code>pg</code> returns counts
+          as text.</li>
+      </ul>
+    </section>
+
+    <section id="s8">
+      <h2><span class="step-n">Step 8</span>Build the web page</h2>
+      <p>Create <code>public/index.html</code>. It holds only structure and a little styling:</p>
+      <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;Student Records&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    input, button { padding: .4rem; margin: .2rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: .4rem; text-align: left; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Student Records&lt;/h1&gt;
+  &lt;p id="stats"&gt;&lt;/p&gt;
+  &lt;p id="msg"&gt;&lt;/p&gt;
+
+  &lt;form id="form"&gt;
+    &lt;input id="name" placeholder="Name" required&gt;
+    &lt;input id="branch" placeholder="Branch"&gt;
+    &lt;input id="marks" type="number" min="0" max="100" placeholder="Marks" required&gt;
+    &lt;button id="save"&gt;Add student&lt;/button&gt;
+    &lt;button type="button" id="cancel" hidden&gt;Cancel&lt;/button&gt;
+  &lt;/form&gt;
+
+  &lt;input id="search" placeholder="Search by name"&gt;
+  &lt;table&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Branch&lt;/th&gt;&lt;th&gt;Marks&lt;/th&gt;&lt;th&gt;&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody id="rows"&gt;&lt;/tbody&gt;
+  &lt;/table&gt;
+
+  &lt;script src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+      <p>Create <code>public/app.js</code>. It fetches data from the API, fills the table, and sends the form back:</p>
+      <pre><code>const $ = id =&gt; document.getElementById(id);
+let editingId = null;
+
+async function api(url, options) {
+  const res = await fetch(url, { headers: { "Content-Type": "application/json" }, ...options });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+function show(text) { $("msg").textContent = text; }
+
+function cell(text) {
+  const td = document.createElement("td");
+  td.textContent = text ?? "";       // textContent keeps user text harmless
+  return td;
+}
+
+function button(label, onclick) {
+  const b = document.createElement("button");
+  b.textContent = label;
+  b.onclick = onclick;
+  return b;
+}
+
+async function load() {
+  const students = await api("/api/students?search=" + encodeURIComponent($("search").value));
+  $("rows").replaceChildren();
+  for (const s of students) {
+    const tr = document.createElement("tr");
+    tr.append(cell(s.id), cell(s.name), cell(s.branch), cell(s.marks));
+    const actions = document.createElement("td");
+    actions.append(button("Edit", () =&gt; startEdit(s)), button("Delete", () =&gt; remove(s)));
+    tr.append(actions);
+    $("rows").append(tr);
+  }
+  const st = await api("/api/stats");
+  $("stats").textContent = `Students: ${st.total} | Average: ${st.average ?? 0} | Highest: ${st.highest ?? 0}`;
+}
+
+function startEdit(s) {
+  editingId = s.id;
+  $("name").value = s.name;
+  $("branch").value = s.branch ?? "";
+  $("marks").value = s.marks;
+  $("save").textContent = "Save changes";
+  $("cancel").hidden = false;
+}
+
+function resetForm() {
+  editingId = null;
+  $("form").reset();
+  $("save").textContent = "Add student";
+  $("cancel").hidden = true;
+}
+
+async function remove(s) {
+  if (!confirm("Delete " + s.name + "?")) return;
+  try {
+    await api("/api/students/" + s.id, { method: "DELETE" });
+    show("Student deleted");
+    await load();
+  } catch (err) { show(err.message); }
+}
+
+$("form").addEventListener("submit", async event =&gt; {
+  event.preventDefault();                       // stop the page from reloading
+  const body = JSON.stringify({
+    name: $("name").value, branch: $("branch").value, marks: $("marks").value
+  });
+  try {
+    if (editingId) await api("/api/students/" + editingId, { method: "PUT", body });
+    else await api("/api/students", { method: "POST", body });
+    show(editingId ? "Student updated" : "Student added");
+    resetForm();
+    await load();
+  } catch (err) { show(err.message); }
+});
+
+$("cancel").onclick = resetForm;
+$("search").addEventListener("input", () =&gt; load().catch(err =&gt; show(err.message)));
+load().catch(err =&gt; show(err.message));</code></pre>
+      <p>Restart the server, open <code>http://localhost:3000</code>, and try add, edit, delete and search. Keep pgAdmin
+        open next to the browser so students see rows change.</p>
+      <div class="note warn">
+        <p><strong>Why <code>textContent</code> and not <code>innerHTML</code>?</strong> If a student types
+          <code>&lt;script&gt;</code> as a name, <code>innerHTML</code> would run it (an attack called XSS).
+          <code>textContent</code> shows it as plain text.</p>
+      </div>
+      <div class="note">
+        <p><strong>Lab network:</strong> other computers can open <code>http://TEACHER-IP:3000</code> while your server
+          runs. Use this only on a trusted network, since anyone can edit the data.</p>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <h2>Check yourself</h2>
+      <p class="lead">Students answer first, then click a question to see the answer.</p>
+      <details>
+        <summary>1. Why can the browser not connect straight to PostgreSQL?</summary>
+        <p>That would put the database password in the page for anyone to read. The server keeps the password and only
+          returns the data the API allows.</p>
+      </details>
+      <details>
+        <summary>2. What does <code>await</code> do?</summary>
+        <p>It pauses that function until the database answers, while the rest of the server keeps working for other
+          users.</p>
+      </details>
+      <details>
+        <summary>3. Which HTTP method and SQL statement match &ldquo;create a student&rdquo;?</summary>
+        <p>POST and INSERT.</p>
+      </details>
+      <details>
+        <summary>4. Why does the server run <code>clean()</code> when the form already has <code>required</code> and
+          <code>min</code>/<code>max</code>?</summary>
+        <p>Browser checks can be skipped by anyone sending their own request. The server must always check input itself.
+        </p>
+      </details>
+      <details>
+        <summary>5. The total shows as <code>"5"</code> in quotes. What happened and how do you fix it?</summary>
+        <p>PostgreSQL returns <code>COUNT</code> as a big number, which <code>pg</code> gives to JavaScript as text.
+          Cast it in SQL: <code>COUNT(*)::int</code>.</p>
+      </details>
+    </section>
+
+    <section id="tasks">
+      <h2>Practice tasks and common errors</h2>
+      <h3>Tasks for students</h3>
+      <ol>
+        <li>Add a branch dropdown filter. <em>Hint:</em> read <code>req.query.branch</code> and use
+          <code>AND ($2 = '' OR branch = $2)</code> in the SQL.</li>
+        <li>Add a route <code>/api/branches</code> that returns average marks per branch with <code>GROUP BY</code>, and
+          list it under the table.</li>
+        <li>Add a <code>departments</code> table with a foreign key and show the department name with a
+          <code>JOIN</code>, as in Part 2.</li>
+        <li>Add a login. <em>Hint:</em> the <code>bcrypt</code> package hashes passwords and
+          <code>express-session</code> remembers who is signed in.</li>
+      </ol>
+      <h3>Common errors</h3>
+      <div class="tw">
+        <table>
+          <tr>
+            <th>Message or problem</th>
+            <th>Likely cause and fix</th>
+          </tr>
+          <tr>
+            <td><code>Cannot find module 'pg'</code></td>
+            <td>Run <code>npm install</code> inside the project folder, and run <code>node</code> from that same folder.
+            </td>
+          </tr>
+          <tr>
+            <td><code>password authentication failed</code></td>
+            <td>Wrong <code>PGPASSWORD</code> or <code>PGUSER</code> in <code>.env</code>. Test the same login in psql.
+            </td>
+          </tr>
+          <tr>
+            <td><code>ECONNREFUSED 127.0.0.1:5432</code></td>
+            <td>PostgreSQL is not running, or uses another port.</td>
+          </tr>
+          <tr>
+            <td><code>database "x" does not exist</code> / <code>relation "students" does not exist</code></td>
+            <td>Wrong <code>PGDATABASE</code>, or Step 2 was not run.</td>
+          </tr>
+          <tr>
+            <td><code>Cannot GET /</code></td>
+            <td><code>public/index.html</code> is missing, or you started the server from a different folder.</td>
+          </tr>
+          <tr>
+            <td><code>Unexpected token '&lt;' ... is not valid JSON</code></td>
+            <td>The browser asked for a wrong API URL and got an HTML error page. Check the path in <code>fetch</code>.
+            </td>
+          </tr>
+          <tr>
+            <td><code>Cannot read properties of undefined (reading 'name')</code></td>
+            <td>The request body is empty. Check <code>app.use(express.json())</code> and the <code>Content-Type</code>
+              header.</td>
+          </tr>
+          <tr>
+            <td><code>EADDRINUSE :::3000</code></td>
+            <td>An old server is still running. Stop it with <code>Ctrl+C</code> or set <code>PORT=3001</code>.</td>
+          </tr>
+          <tr>
+            <td>Changes to <code>server.js</code> have no effect</td>
+            <td>Restart the server, or run it with <code>node --watch server.js</code>.</td>
+          </tr>
+          <tr>
+            <td>A script never finishes</td>
+            <td>Missing <code>await pool.end()</code> at the end of a test script.</td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+
+  </main>
+
+  <footer>
+    <div class="wrap">Tip for teachers: let students test each API route in the browser address bar before writing the
+      page. When the page fails, they can tell at once whether the problem is in the server or in the JavaScript.</div>
+  </footer>
+
+  <script>
+    document.querySelectorAll("pre").forEach(function (pre) {
+      var b = document.createElement("button");
+      b.className = "btn"; b.type = "button"; b.textContent = "Copy";
+      b.addEventListener("click", function () {
+        var t = pre.querySelector("code").innerText;
+        try {
+          navigator.clipboard.writeText(t).then(function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy" }, 1500) });
+        } catch (e) { b.textContent = "Select and copy" }
+      });
+      pre.appendChild(b);
+    });
+  </script>
+</body>
+
+</html>
