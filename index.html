@@ -1,322 +1,939 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MC 212 DBMS Handbook</title>
-<meta name="description" content="MC 212 Database Management Systems handbook: ER and EER modeling, and converting ER diagrams into relational schemas.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --paper:#F1F2EC;
-    --paper-raised:#FBFBF7;
-    --ink:#1E241F;
-    --ink-soft:#4A5248;
-    --rule:#CBCDBF;
-    --forest:#2F6657;
-    --forest-deep:#1F473C;
-    --brick:#9C4530;
-    --gold:#A9822F;
-    --box-def:#E8EDE6;
-    --shape-line:#22301F;
-  }
-  *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
-  body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Source Serif 4", Georgia, "Times New Roman", serif;
-    font-size:18px;
-    line-height:1.6;
-  }
-  a{ color:var(--forest-deep); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MC 212 DBMS Handbook</title>
+  <meta name="description"
+    content="MC 212 Database Management Systems handbook: ER and EER modeling, and converting ER diagrams into relational schemas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F1F2EC;
+      --paper-raised: #FBFBF7;
+      --ink: #1E241F;
+      --ink-soft: #4A5248;
+      --rule: #CBCDBF;
+      --forest: #2F6657;
+      --forest-deep: #1F473C;
+      --brick: #9C4530;
+      --gold: #A9822F;
+      --box-def: #E8EDE6;
+      --shape-line: #22301F;
+    }
 
-  .cover{ max-width:1000px; margin:0 auto; padding:84px 24px 52px; border-bottom:1px solid var(--rule); }
-  .cover .kicker{ color:var(--forest-deep); font-size:16px; font-style:italic; margin:0 0 14px; }
-  .cover h1{ font-size:58px; line-height:1.05; margin:0 0 18px; font-weight:600; letter-spacing:-0.5px; }
-  .cover h1 span{ color:var(--forest); }
-  .rule-ornament{ width:64px; height:3px; background:var(--gold); margin:0 0 28px; }
-  .cover p.lede{ max-width:62ch; font-size:20px; color:var(--ink-soft); margin:0 0 32px; }
-  .stack{ display:flex; gap:40px; flex-wrap:wrap; font-size:15px; color:var(--ink-soft); }
-  .stack strong{ display:block; color:var(--ink); font-size:16px; font-weight:600; }
+    * {
+      box-sizing: border-box;
+    }
 
-  main{ max-width:1000px; margin:0 auto; padding:0 24px 80px; }
-  h2.section-title{ font-size:30px; font-weight:600; margin:60px 0 8px; }
-  p.section-sub{ color:var(--ink-soft); margin:0 0 26px; max-width:66ch; }
+    html {
+      scroll-behavior: smooth;
+    }
 
-  /* learning path */
-  .path{ display:grid; grid-template-columns:1fr auto 1fr auto 1fr; align-items:stretch; gap:12px; margin:8px 0 10px; }
-  .stage{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:8px; padding:16px 18px; }
-  .stage .sn{ font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--brick); font-weight:600; }
-  .stage .st{ font-size:19px; font-weight:600; margin:2px 0 4px; }
-  .stage .sd{ font-size:15px; color:var(--ink-soft); line-height:1.45; }
-  .stage.here{ border:2px solid var(--forest); }
-  .stage.later{ opacity:.7; border-style:dashed; }
-  .arrow{ align-self:center; color:var(--gold); font-size:26px; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.6;
+    }
 
-  /* section cards */
-  .part{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px; margin:0 0 34px; overflow:hidden; }
-  .part-head{ display:grid; grid-template-columns:auto 1fr; gap:26px; padding:30px 32px 24px; border-bottom:1px solid var(--rule); }
-  .part-num{ font-size:64px; line-height:1; font-weight:600; color:var(--forest); min-width:1.2ch; }
-  .part-label{ font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--brick); font-weight:600; margin:4px 0 2px; }
-  .part h3{ font-size:30px; margin:0 0 10px; font-weight:600; line-height:1.15; }
-  .part h3 a{ color:var(--ink); text-decoration:none; }
-  .part h3 a:hover{ color:var(--forest-deep); }
-  .part-desc{ color:var(--ink-soft); margin:0 0 16px; }
-  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
-  .chip{ font-size:13.5px; background:var(--box-def); color:var(--forest-deep); padding:3px 11px; border-radius:20px; }
-  .btn{ display:inline-block; background:var(--forest); color:#fff; text-decoration:none; font-weight:600; font-size:16px; padding:10px 20px; border-radius:6px; }
-  .btn:hover{ background:var(--forest-deep); }
-  .btn.ghost{ background:transparent; color:var(--forest-deep); border:1.5px solid var(--forest); margin-left:10px; }
-  .btn.ghost:hover{ background:var(--box-def); }
-  .meta{ font-size:14.5px; color:var(--ink-soft); margin-left:14px; font-style:italic; }
+    a {
+      color: var(--forest-deep);
+    }
 
-  .part-body{ padding:22px 32px 28px; }
-  .part-body h4{ font-size:14px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-soft); margin:0 0 12px; font-weight:600; }
-  .toc-cols{ display:grid; grid-template-columns:1fr 1fr; gap:4px 36px; }
-  .group{ break-inside:avoid; margin-bottom:12px; }
-  .group-title{ font-size:14px; font-weight:600; color:var(--brick); margin:8px 0 4px; }
-  ol.chapters{ list-style:none; margin:0; padding:0; }
-  ol.chapters li{ display:flex; gap:12px; padding:6px 0; border-bottom:1px dotted var(--rule); font-size:16px; }
-  ol.chapters li span.n{ color:var(--forest); font-weight:600; min-width:2ch; font-variant-numeric:tabular-nums; }
-  ol.chapters a{ color:var(--ink); text-decoration:none; }
-  ol.chapters a:hover{ color:var(--forest-deep); text-decoration:underline; }
-  ol.chapters .lv{ margin-left:auto; font-size:12px; color:var(--ink-soft); font-style:italic; white-space:nowrap; padding-left:8px; }
+    .cover {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 84px 24px 52px;
+      border-bottom: 1px solid var(--rule);
+    }
 
-  /* quick reference */
-  .quick{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
-  .quick a{ display:block; background:var(--paper-raised); border:1px solid var(--rule); border-left:4px solid var(--gold); border-radius:6px; padding:14px 16px; text-decoration:none; color:var(--ink); }
-  .quick a:hover{ border-color:var(--forest); border-left-color:var(--forest); }
-  .quick .qt{ font-weight:600; font-size:17px; display:block; }
-  .quick .qd{ font-size:14.5px; color:var(--ink-soft); display:block; margin-top:2px; line-height:1.4; }
-  .quick .qs{ font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--brick); font-weight:600; display:block; margin-bottom:4px; }
+    .cover .kicker {
+      color: var(--forest-deep);
+      font-size: 16px;
+      font-style: italic;
+      margin: 0 0 14px;
+    }
 
-  .how{ background:var(--box-def); border-left:5px solid var(--forest); border-radius:4px; padding:18px 22px; margin:36px 0 0; }
-  .how strong.l{ display:block; color:var(--forest-deep); font-size:15px; margin-bottom:6px; }
-  .how ol{ margin:0; padding-left:22px; }
-  .how li{ margin-bottom:6px; }
+    .cover h1 {
+      font-size: 58px;
+      line-height: 1.05;
+      margin: 0 0 18px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
 
-  footer{ max-width:1000px; margin:0 auto; padding:30px 24px 60px; border-top:1px solid var(--rule); color:var(--ink-soft); font-size:15px; font-style:italic; text-align:center; }
+    .cover h1 span {
+      color: var(--forest);
+    }
 
-  @media (max-width:800px){
-    .path{ grid-template-columns:1fr; }
-    .arrow{ transform:rotate(90deg); justify-self:center; font-size:22px; }
-    .toc-cols{ grid-template-columns:1fr; }
-    .quick{ grid-template-columns:1fr 1fr; }
-  }
-  @media (max-width:600px){
-    body{ font-size:17px; }
-    .cover{ padding:56px 16px 40px; }
-    .cover h1{ font-size:40px; }
-    main{ padding:0 16px 60px; }
-    .part-head{ grid-template-columns:1fr; gap:6px; padding:22px 18px 20px; }
-    .part-num{ font-size:44px; }
-    .part h3{ font-size:25px; }
-    .part-body{ padding:18px 18px 22px; }
-    .quick{ grid-template-columns:1fr; }
-    .btn.ghost{ margin-left:0; margin-top:10px; }
-    .meta{ display:block; margin:10px 0 0; }
-    ol.chapters .lv{ display:none; }
-  }
-</style>
+    .rule-ornament {
+      width: 64px;
+      height: 3px;
+      background: var(--gold);
+      margin: 0 0 28px;
+    }
+
+    .cover p.lede {
+      max-width: 62ch;
+      font-size: 20px;
+      color: var(--ink-soft);
+      margin: 0 0 32px;
+    }
+
+    .stack {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      font-size: 15px;
+      color: var(--ink-soft);
+    }
+
+    .stack strong {
+      display: block;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    h2.section-title {
+      font-size: 30px;
+      font-weight: 600;
+      margin: 60px 0 8px;
+    }
+
+    p.section-sub {
+      color: var(--ink-soft);
+      margin: 0 0 26px;
+      max-width: 66ch;
+    }
+
+    /* learning path */
+    .path {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: stretch;
+      gap: 12px;
+      margin: 8px 0 10px;
+    }
+
+    .stage {
+      background: var(--paper-raised);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 16px 18px;
+    }
+
+    .stage .sn {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--brick);
+      font-weight: 600;
+    }
+
+    .stage .st {
+      font-size: 19px;
+      font-weight: 600;
+      margin: 2px 0 4px;
+    }
+
+    .stage .sd {
+      font-size: 15px;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    .stage.here {
+      border: 2px solid var(--forest);
+    }
+
+    .stage.later {
+      opacity: .7;
+      border-style: dashed;
+    }
+
+    .arrow {
+      align-self: center;
+      color: var(--gold);
+      font-size: 26px;
+    }
+
+    /* section cards */
+    .part {
+      background: var(--paper-raised);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      margin: 0 0 34px;
+      overflow: hidden;
+    }
+
+    .part-head {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 26px;
+      padding: 30px 32px 24px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .part-num {
+      font-size: 64px;
+      line-height: 1;
+      font-weight: 600;
+      color: var(--forest);
+      min-width: 1.2ch;
+    }
+
+    .part-label {
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--brick);
+      font-weight: 600;
+      margin: 4px 0 2px;
+    }
+
+    .part h3 {
+      font-size: 30px;
+      margin: 0 0 10px;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+
+    .part h3 a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .part h3 a:hover {
+      color: var(--forest-deep);
+    }
+
+    .part-desc {
+      color: var(--ink-soft);
+      margin: 0 0 16px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 20px;
+    }
+
+    .chip {
+      font-size: 13.5px;
+      background: var(--box-def);
+      color: var(--forest-deep);
+      padding: 3px 11px;
+      border-radius: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--forest);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    .btn:hover {
+      background: var(--forest-deep);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--forest-deep);
+      border: 1.5px solid var(--forest);
+      margin-left: 10px;
+    }
+
+    .btn.ghost:hover {
+      background: var(--box-def);
+    }
+
+    .meta {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      margin-left: 14px;
+      font-style: italic;
+    }
+
+    .part-body {
+      padding: 22px 32px 28px;
+    }
+
+    .part-body h4 {
+      font-size: 14px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 12px;
+      font-weight: 600;
+    }
+
+    .toc-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 36px;
+    }
+
+    .group {
+      break-inside: avoid;
+      margin-bottom: 12px;
+    }
+
+    .group-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--brick);
+      margin: 8px 0 4px;
+    }
+
+    ol.chapters {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    ol.chapters li {
+      display: flex;
+      gap: 12px;
+      padding: 6px 0;
+      border-bottom: 1px dotted var(--rule);
+      font-size: 16px;
+    }
+
+    ol.chapters li span.n {
+      color: var(--forest);
+      font-weight: 600;
+      min-width: 2ch;
+      font-variant-numeric: tabular-nums;
+    }
+
+    ol.chapters a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    ol.chapters a:hover {
+      color: var(--forest-deep);
+      text-decoration: underline;
+    }
+
+    ol.chapters .lv {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-style: italic;
+      white-space: nowrap;
+      padding-left: 8px;
+    }
+
+    /* quick reference */
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .quick a {
+      display: block;
+      background: var(--paper-raised);
+      border: 1px solid var(--rule);
+      border-left: 4px solid var(--gold);
+      border-radius: 6px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .quick a:hover {
+      border-color: var(--forest);
+      border-left-color: var(--forest);
+    }
+
+    .quick .qt {
+      font-weight: 600;
+      font-size: 17px;
+      display: block;
+    }
+
+    .quick .qd {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      display: block;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .quick .qs {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--brick);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .how {
+      background: var(--box-def);
+      border-left: 5px solid var(--forest);
+      border-radius: 4px;
+      padding: 18px 22px;
+      margin: 36px 0 0;
+    }
+
+    .how strong.l {
+      display: block;
+      color: var(--forest-deep);
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .how ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .how li {
+      margin-bottom: 6px;
+    }
+
+    footer {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px 24px 60px;
+      border-top: 1px solid var(--rule);
+      color: var(--ink-soft);
+      font-size: 15px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    @media (max-width:800px) {
+      .path {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        transform: rotate(90deg);
+        justify-self: center;
+        font-size: 22px;
+      }
+
+      .toc-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .quick {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width:600px) {
+      body {
+        font-size: 17px;
+      }
+
+      .cover {
+        padding: 56px 16px 40px;
+      }
+
+      .cover h1 {
+        font-size: 40px;
+      }
+
+      main {
+        padding: 0 16px 60px;
+      }
+
+      .part-head {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 22px 18px 20px;
+      }
+
+      .part-num {
+        font-size: 44px;
+      }
+
+      .part h3 {
+        font-size: 25px;
+      }
+
+      .part-body {
+        padding: 18px 18px 22px;
+      }
+
+      .quick {
+        grid-template-columns: 1fr;
+      }
+
+      .btn.ghost {
+        margin-left: 0;
+        margin-top: 10px;
+      }
+
+      .meta {
+        display: block;
+        margin: 10px 0 0;
+      }
+
+      ol.chapters .lv {
+        display: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<header class="cover">
-  <p class="kicker">MC 212 &middot; Database Management Systems</p>
-  <h1>MC 212 <span>DBMS</span> Handbook</h1>
-  <div class="rule-ornament"></div>
-  <p class="lede">A self-contained study handbook for database design, from drawing your first entity to producing a complete relational schema with primary keys, foreign keys, and SQL. Every topic is taught with diagrams, worked examples, and the specific mistakes students make most often.</p>
-  <div class="stack">
-    <div><strong>Sections</strong>2 handbooks, 37 chapters</div>
-    <div><strong>Notation</strong>Chen's ER / EER notation, standard SQL</div>
-    <div><strong>Level</strong>No prior database background needed</div>
-  </div>
-</header>
-
-<main>
-
-  <h2 class="section-title">The learning path</h2>
-  <p class="section-sub">Database design happens in three stages. This handbook covers the first two, in order: first decide <em>what</em> to store, then decide <em>how</em> it becomes tables.</p>
-
-  <div class="path">
-    <div class="stage here">
-      <div class="sn">Stage 1 &middot; Section 1</div>
-      <div class="st">Conceptual design</div>
-      <div class="sd">Model entities, attributes, and relationships as an ER/EER diagram.</div>
+  <header class="cover">
+    <p class="kicker">MC 212 &middot; Database Management Systems</p>
+    <h1>MC 212 <span>DBMS</span> Handbook</h1>
+    <div class="rule-ornament"></div>
+    <p class="lede">A self-contained study handbook for database design, from drawing your first entity to producing a
+      complete relational schema with primary keys, foreign keys, and SQL. Every topic is taught with diagrams, worked
+      examples, and the specific mistakes students make most often.</p>
+    <div class="stack">
+      <div><strong>Sections</strong>2 handbooks, 37 chapters</div>
+      <div><strong>Sections</strong>2 handbooks + 3 labs, 37+ chapters</div>
+      <div><strong>Notation</strong>Chen's ER / EER notation, standard SQL</div>
+      <div><strong>Level</strong>No prior database background needed</div>
     </div>
-    <div class="arrow" aria-hidden="true">&rarr;</div>
-    <div class="stage here">
-      <div class="sn">Stage 2 &middot; Section 2</div>
-      <div class="st">Logical design</div>
-      <div class="sd">Convert the diagram into relations, keys, and constraints.</div>
-    </div>
-    <div class="arrow" aria-hidden="true">&rarr;</div>
-    <div class="stage later">
-      <div class="sn">Stage 3</div>
-      <div class="st">Physical design</div>
-      <div class="sd">Indexes, storage, and tuning. Not covered in these sections.</div>
-    </div>
-  </div>
+  </header>
 
-  <h2 class="section-title" id="sections">Sections</h2>
-  <p class="section-sub">Work through them in order. Section 2 converts the same diagrams you build in Section 1.</p>
+  <main>
 
-  <!-- ===================== SECTION 1 ===================== -->
-  <article class="part" id="er">
-    <div class="part-head">
-      <div class="part-num">1</div>
-      <div>
-        <p class="part-label">Section 1 &middot; Conceptual design</p>
-        <h3><a href="er-diagram.html">Entity&ndash;Relationship Modeling: ER and EER Diagrams</a></h3>
-        <p class="part-desc">Learn to read and draw ER diagrams in Chen's notation, from first principles to the Enhanced ER model. It covers every symbol and constraint, includes two full worked diagrams, and lists the mistakes that trip up almost every beginner.</p>
-        <div class="chips">
-          <span class="chip">Entities &amp; attributes</span>
-          <span class="chip">Cardinality &amp; participation</span>
-          <span class="chip">Weak entities</span>
-          <span class="chip">Specialization / generalization</span>
-          <span class="chip">Aggregation</span>
-          <span class="chip">Categories</span>
-        </div>
-        <a class="btn" href="er-diagram.html">Start Section 1 &rarr;</a><a class="btn ghost" href="er-diagram.html#ch14">Symbol reference</a><span class="meta">14 chapters &middot; Beginner friendly</span>
+    <h2 class="section-title">The learning path</h2>
+    <p class="section-sub">Database design happens in three stages. This handbook covers the first two, in order: first
+      decide <em>what</em> to store, then decide <em>how</em> it becomes tables.</p>
+
+    <div class="path">
+      <div class="stage here">
+        <div class="sn">Stage 1 &middot; Section 1</div>
+        <div class="st">Conceptual design</div>
+        <div class="sd">Model entities, attributes, and relationships as an ER/EER diagram.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div class="stage here">
+        <div class="sn">Stage 2 &middot; Section 2</div>
+        <div class="st">Logical design</div>
+        <div class="sd">Convert the diagram into relations, keys, and constraints.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div class="stage later">
+        <div class="sn">Stage 3</div>
+        <div class="st">Physical design</div>
+        <div class="sd">Indexes, storage, and tuning. Not covered in these sections.</div>
       </div>
     </div>
-    <div class="part-body">
-      <h4>Chapters</h4>
-      <div class="toc-cols">
-        <div class="group">
-          <div class="group-title">ER fundamentals</div>
-          <ol class="chapters">
-            <li><span class="n">01</span><a href="er-diagram.html#ch1">Why we draw ER diagrams at all</a></li>
-            <li><span class="n">02</span><a href="er-diagram.html#ch2">Entities: the nouns of your system</a></li>
-            <li><span class="n">03</span><a href="er-diagram.html#ch3">Attributes: describing an entity, precisely</a></li>
-            <li><span class="n">04</span><a href="er-diagram.html#ch4">Relationships: binary and ternary</a></li>
-            <li><span class="n">05</span><a href="er-diagram.html#ch5">Cardinality and participation</a></li>
-            <li><span class="n">06</span><a href="er-diagram.html#ch6">Weak entities and identifying relationships</a></li>
-            <li><span class="n">07</span><a href="er-diagram.html#ch7">Worked example: Library Management System</a></li>
-          </ol>
-        </div>
-        <div class="group">
-          <div class="group-title">Enhanced ER and review</div>
-          <ol class="chapters">
-            <li><span class="n">08</span><a href="er-diagram.html#ch8">Specialization and generalization</a></li>
-            <li><span class="n">09</span><a href="er-diagram.html#ch9">Disjoint, overlapping, total, partial</a></li>
-            <li><span class="n">10</span><a href="er-diagram.html#ch10">Aggregation</a></li>
-            <li><span class="n">11</span><a href="er-diagram.html#ch11">Union types (categories)</a></li>
-            <li><span class="n">12</span><a href="er-diagram.html#ch12">Worked example: a full EER diagram</a></li>
-            <li><span class="n">13</span><a href="er-diagram.html#ch13">Mistakes almost every beginner makes</a></li>
-            <li><span class="n">14</span><a href="er-diagram.html#ch14">Symbol reference and practice</a></li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </article>
 
-  <!-- ===================== SECTION 2 ===================== -->
-  <article class="part" id="er-to-relational">
-    <div class="part-head">
-      <div class="part-num">2</div>
-      <div>
-        <p class="part-label">Section 2 &middot; Logical design</p>
-        <h3><a href="er-to-relational.html">From ER Diagram to Relational Schema: The Mapping Handbook</a></h3>
-        <p class="part-desc">Learn how every ER and EER component becomes tables, primary keys, and foreign keys. The 13 mapping rules each come with diagrams, sample rows, and SQL. It also covers full conversions of the Section 1 examples, exam-style table counting, and 22 mistakes to avoid.</p>
-        <div class="chips">
-          <span class="chip">13 mapping rules</span>
-          <span class="chip">1:1, 1:N, M:N</span>
-          <span class="chip">Weak &amp; multivalued</span>
-          <span class="chip">ISA options A&ndash;D</span>
-          <span class="chip">SQL DDL</span>
-          <span class="chip">"How many tables?"</span>
-        </div>
-        <a class="btn" href="er-to-relational.html">Start Section 2 &rarr;</a><a class="btn ghost" href="er-to-relational.html#ch3">Master map</a><span class="meta">23 chapters &middot; Basic to Pro</span>
-      </div>
-    </div>
-    <div class="part-body">
-      <h4>Chapters</h4>
-      <div class="toc-cols">
+    <h2 class="section-title" id="sections">Sections</h2>
+    <p class="section-sub">Work through them in order. Section 2 converts the same diagrams you build in Section 1.</p>
+    <p class="section-sub">Work through them in order. Section 2 converts the same diagrams you build in Section 1. The
+      labs wire it all up in real code.</p>
+
+    <!-- ===================== SECTION 1 ===================== -->
+    <article class="part" id="er">
+      <div class="part-head">
+        <div class="part-num">1</div>
         <div>
-          <div class="group">
-            <div class="group-title">Foundations</div>
-            <ol class="chapters">
-              <li><span class="n">01</span><a href="er-to-relational.html#ch1">Why we convert, and what changes</a><span class="lv">Basic</span></li>
-              <li><span class="n">02</span><a href="er-to-relational.html#ch2">Relational vocabulary and notation</a><span class="lv">Basic</span></li>
-              <li><span class="n">03</span><a href="er-to-relational.html#ch3">The master map of every component</a><span class="lv">Basic</span></li>
-            </ol>
+          <p class="part-label">Section 1 &middot; Conceptual design</p>
+          <h3><a href="er-diagram.html">Entity&ndash;Relationship Modeling: ER and EER Diagrams</a></h3>
+          <p class="part-desc">Learn to read and draw ER diagrams in Chen's notation, from first principles to the
+            Enhanced ER model. It covers every symbol and constraint, includes two full worked diagrams, and lists the
+            mistakes that trip up almost every beginner.</p>
+          <div class="chips">
+            <span class="chip">Entities &amp; attributes</span>
+            <span class="chip">Cardinality &amp; participation</span>
+            <span class="chip">Weak entities</span>
+            <span class="chip">Specialization / generalization</span>
+            <span class="chip">Aggregation</span>
+            <span class="chip">Categories</span>
           </div>
-          <div class="group">
-            <div class="group-title">Entities and attributes</div>
-            <ol class="chapters">
-              <li><span class="n">04</span><a href="er-to-relational.html#ch4">Strong entities and key attributes</a><span class="lv">Basic</span></li>
-              <li><span class="n">05</span><a href="er-to-relational.html#ch5">Composite attributes</a><span class="lv">Basic</span></li>
-              <li><span class="n">06</span><a href="er-to-relational.html#ch6">Multivalued attributes</a><span class="lv">Basic</span></li>
-              <li><span class="n">07</span><a href="er-to-relational.html#ch7">Derived attributes</a><span class="lv">Basic</span></li>
-              <li><span class="n">08</span><a href="er-to-relational.html#ch8">Weak entities</a><span class="lv">Intermediate</span></li>
-            </ol>
-          </div>
-          <div class="group">
-            <div class="group-title">Relationships</div>
-            <ol class="chapters">
-              <li><span class="n">09</span><a href="er-to-relational.html#ch9">Binary one-to-one (1:1)</a><span class="lv">Intermediate</span></li>
-              <li><span class="n">10</span><a href="er-to-relational.html#ch10">Binary one-to-many (1:N)</a><span class="lv">Intermediate</span></li>
-              <li><span class="n">11</span><a href="er-to-relational.html#ch11">Binary many-to-many (M:N)</a><span class="lv">Intermediate</span></li>
-              <li><span class="n">12</span><a href="er-to-relational.html#ch12">Participation &amp; cardinality as constraints</a><span class="lv">Intermediate</span></li>
-              <li><span class="n">13</span><a href="er-to-relational.html#ch13">Unary (recursive) relationships</a><span class="lv">Intermediate</span></li>
-              <li><span class="n">14</span><a href="er-to-relational.html#ch14">Ternary and n-ary relationships</a><span class="lv">Advanced</span></li>
-            </ol>
-          </div>
+          <a class="btn" href="er-diagram.html">Start Section 1 &rarr;</a><a class="btn ghost"
+            href="er-diagram.html#ch14">Symbol reference</a><span class="meta">14 chapters &middot; Beginner
+            friendly</span>
         </div>
-        <div>
+      </div>
+      <div class="part-body">
+        <h4>Chapters</h4>
+        <div class="toc-cols">
           <div class="group">
-            <div class="group-title">Enhanced ER constructs</div>
+            <div class="group-title">ER fundamentals</div>
             <ol class="chapters">
-              <li><span class="n">15</span><a href="er-to-relational.html#ch15">Specialization and generalization</a><span class="lv">Advanced</span></li>
-              <li><span class="n">16</span><a href="er-to-relational.html#ch16">Categories (union types)</a><span class="lv">Advanced</span></li>
-              <li><span class="n">17</span><a href="er-to-relational.html#ch17">Aggregation</a><span class="lv">Advanced</span></li>
+              <li><span class="n">01</span><a href="er-diagram.html#ch1">Why we draw ER diagrams at all</a></li>
+              <li><span class="n">02</span><a href="er-diagram.html#ch2">Entities: the nouns of your system</a></li>
+              <li><span class="n">03</span><a href="er-diagram.html#ch3">Attributes: describing an entity, precisely</a>
+              </li>
+              <li><span class="n">04</span><a href="er-diagram.html#ch4">Relationships: binary and ternary</a></li>
+              <li><span class="n">05</span><a href="er-diagram.html#ch5">Cardinality and participation</a></li>
+              <li><span class="n">06</span><a href="er-diagram.html#ch6">Weak entities and identifying relationships</a>
+              </li>
+              <li><span class="n">07</span><a href="er-diagram.html#ch7">Worked example: Library Management System</a>
+              </li>
             </ol>
           </div>
           <div class="group">
-            <div class="group-title">Putting it all together</div>
+            <div class="group-title">Enhanced ER and review</div>
             <ol class="chapters">
-              <li><span class="n">18</span><a href="er-to-relational.html#ch18">Worked example: Library, end to end</a><span class="lv">Pro</span></li>
-              <li><span class="n">19</span><a href="er-to-relational.html#ch19">Worked example: Hospital EER</a><span class="lv">Pro</span></li>
-              <li><span class="n">20</span><a href="er-to-relational.html#ch20">"How many tables?" exam counting</a><span class="lv">Pro</span></li>
-              <li><span class="n">21</span><a href="er-to-relational.html#ch21">Mistakes to avoid when mapping</a><span class="lv">All levels</span></li>
-              <li><span class="n">22</span><a href="er-to-relational.html#ch22">Pro tips and verification checklist</a><span class="lv">Pro</span></li>
-              <li><span class="n">23</span><a href="er-to-relational.html#ch23">Cheat sheet and practice problems</a><span class="lv">All levels</span></li>
+              <li><span class="n">08</span><a href="er-diagram.html#ch8">Specialization and generalization</a></li>
+              <li><span class="n">09</span><a href="er-diagram.html#ch9">Disjoint, overlapping, total, partial</a></li>
+              <li><span class="n">10</span><a href="er-diagram.html#ch10">Aggregation</a></li>
+              <li><span class="n">11</span><a href="er-diagram.html#ch11">Union types (categories)</a></li>
+              <li><span class="n">12</span><a href="er-diagram.html#ch12">Worked example: a full EER diagram</a></li>
+              <li><span class="n">13</span><a href="er-diagram.html#ch13">Mistakes almost every beginner makes</a></li>
+              <li><span class="n">14</span><a href="er-diagram.html#ch14">Symbol reference and practice</a></li>
             </ol>
           </div>
         </div>
       </div>
+    </article>
+
+    <!-- ===================== SECTION 2 ===================== -->
+    <article class="part" id="er-to-relational">
+      <div class="part-head">
+        <div class="part-num">2</div>
+        <div>
+          <p class="part-label">Section 2 &middot; Logical design</p>
+          <h3><a href="er-to-relational.html">From ER Diagram to Relational Schema: The Mapping Handbook</a></h3>
+          <p class="part-desc">Learn how every ER and EER component becomes tables, primary keys, and foreign keys. The
+            13 mapping rules each come with diagrams, sample rows, and SQL. It also covers full conversions of the
+            Section 1 examples, exam-style table counting, and 22 mistakes to avoid.</p>
+          <div class="chips">
+            <span class="chip">13 mapping rules</span>
+            <span class="chip">1:1, 1:N, M:N</span>
+            <span class="chip">Weak &amp; multivalued</span>
+            <span class="chip">ISA options A&ndash;D</span>
+            <span class="chip">SQL DDL</span>
+            <span class="chip">"How many tables?"</span>
+          </div>
+          <a class="btn" href="er-to-relational.html">Start Section 2 &rarr;</a><a class="btn ghost"
+            href="er-to-relational.html#ch3">Master map</a><span class="meta">23 chapters &middot; Basic to Pro</span>
+        </div>
+      </div>
+      <div class="part-body">
+        <h4>Chapters</h4>
+        <div class="toc-cols">
+          <div>
+            <div class="group">
+              <div class="group-title">Foundations</div>
+              <ol class="chapters">
+                <li><span class="n">01</span><a href="er-to-relational.html#ch1">Why we convert, and what
+                    changes</a><span class="lv">Basic</span></li>
+                <li><span class="n">02</span><a href="er-to-relational.html#ch2">Relational vocabulary and
+                    notation</a><span class="lv">Basic</span></li>
+                <li><span class="n">03</span><a href="er-to-relational.html#ch3">The master map of every
+                    component</a><span class="lv">Basic</span></li>
+              </ol>
+            </div>
+            <div class="group">
+              <div class="group-title">Entities and attributes</div>
+              <ol class="chapters">
+                <li><span class="n">04</span><a href="er-to-relational.html#ch4">Strong entities and key
+                    attributes</a><span class="lv">Basic</span></li>
+                <li><span class="n">05</span><a href="er-to-relational.html#ch5">Composite attributes</a><span
+                    class="lv">Basic</span></li>
+                <li><span class="n">06</span><a href="er-to-relational.html#ch6">Multivalued attributes</a><span
+                    class="lv">Basic</span></li>
+                <li><span class="n">07</span><a href="er-to-relational.html#ch7">Derived attributes</a><span
+                    class="lv">Basic</span></li>
+                <li><span class="n">08</span><a href="er-to-relational.html#ch8">Weak entities</a><span
+                    class="lv">Intermediate</span></li>
+              </ol>
+            </div>
+            <div class="group">
+              <div class="group-title">Relationships</div>
+              <ol class="chapters">
+                <li><span class="n">09</span><a href="er-to-relational.html#ch9">Binary one-to-one (1:1)</a><span
+                    class="lv">Intermediate</span></li>
+                <li><span class="n">10</span><a href="er-to-relational.html#ch10">Binary one-to-many (1:N)</a><span
+                    class="lv">Intermediate</span></li>
+                <li><span class="n">11</span><a href="er-to-relational.html#ch11">Binary many-to-many (M:N)</a><span
+                    class="lv">Intermediate</span></li>
+                <li><span class="n">12</span><a href="er-to-relational.html#ch12">Participation &amp; cardinality as
+                    constraints</a><span class="lv">Intermediate</span></li>
+                <li><span class="n">13</span><a href="er-to-relational.html#ch13">Unary (recursive)
+                    relationships</a><span class="lv">Intermediate</span></li>
+                <li><span class="n">14</span><a href="er-to-relational.html#ch14">Ternary and n-ary
+                    relationships</a><span class="lv">Advanced</span></li>
+              </ol>
+            </div>
+          </div>
+          <div>
+            <div class="group">
+              <div class="group-title">Enhanced ER constructs</div>
+              <ol class="chapters">
+                <li><span class="n">15</span><a href="er-to-relational.html#ch15">Specialization and
+                    generalization</a><span class="lv">Advanced</span></li>
+                <li><span class="n">16</span><a href="er-to-relational.html#ch16">Categories (union types)</a><span
+                    class="lv">Advanced</span></li>
+                <li><span class="n">17</span><a href="er-to-relational.html#ch17">Aggregation</a><span
+                    class="lv">Advanced</span></li>
+              </ol>
+            </div>
+            <div class="group">
+              <div class="group-title">Putting it all together</div>
+              <ol class="chapters">
+                <li><span class="n">18</span><a href="er-to-relational.html#ch18">Worked example: Library, end to
+                    end</a><span class="lv">Pro</span></li>
+                <li><span class="n">19</span><a href="er-to-relational.html#ch19">Worked example: Hospital EER</a><span
+                    class="lv">Pro</span></li>
+                <li><span class="n">20</span><a href="er-to-relational.html#ch20">"How many tables?" exam
+                    counting</a><span class="lv">Pro</span></li>
+                <li><span class="n">21</span><a href="er-to-relational.html#ch21">Mistakes to avoid when
+                    mapping</a><span class="lv">All levels</span></li>
+                <li><span class="n">22</span><a href="er-to-relational.html#ch22">Pro tips and verification
+                    checklist</a><span class="lv">Pro</span></li>
+                <li><span class="n">23</span><a href="er-to-relational.html#ch23">Cheat sheet and practice
+                    problems</a><span class="lv">All levels</span></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+
+    <!-- ===================== LAB SECTION HEADER ===================== -->
+    <h2 class="section-title" id="labs">Labs</h2>
+    <p class="section-sub">Hands-on programming labs. Each lab builds a working database application from scratch
+      &mdash; pick the stack that matches your course.</p>
+
+    <!-- ===================== LAB 1 ===================== -->
+    <article class="part" id="lab1">
+      <div class="part-head">
+        <div class="part-num">L1</div>
+        <div>
+          <p class="part-label">Lab 1 &middot; Python + PostgreSQL</p>
+          <h3><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Python, PostgreSQL and GUI</a></h3>
+          <p class="part-desc">Connect Python to a live PostgreSQL database, run parameterised queries safely, and build
+            a desktop student-records application using Tkinter. Goes from first connection all the way to a full CRUD
+            GUI.</p>
+          <div class="chips">
+            <span class="chip">psycopg2</span>
+            <span class="chip">CREATE / INSERT / SELECT</span>
+            <span class="chip">UPDATE &amp; DELETE</span>
+            <span class="chip">Tkinter GUI</span>
+            <span class="chip">SQL injection prevention</span>
+          </div>
+          <a class="btn" href="DBMS Lab_ Python, PostgreSQL and GUI.html">Start Lab 1 &rarr;</a>
+          <span class="meta">8 steps &middot; Python 3 &middot; PostgreSQL</span>
+        </div>
+      </div>
+      <div class="part-body">
+        <h4>Steps</h4>
+        <div class="toc-cols">
+          <div class="group">
+            <div class="group-title">Core database work</div>
+            <ol class="chapters">
+              <li><span class="n">&ndash;</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Before you start</a>
+              </li>
+              <li><span class="n">&ndash;</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Basics: how Python
+                  talks to PostgreSQL</a></li>
+              <li><span class="n">1</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Connect to your
+                  database</a></li>
+              <li><span class="n">2</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Create a table</a></li>
+              <li><span class="n">3</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Insert rows safely</a>
+              </li>
+              <li><span class="n">4</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Read data with SELECT</a>
+              </li>
+            </ol>
+          </div>
+          <div class="group">
+            <div class="group-title">GUI and practice</div>
+            <ol class="chapters">
+              <li><span class="n">5</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Update and delete</a></li>
+              <li><span class="n">6</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Your first Tkinter
+                  window</a></li>
+              <li><span class="n">7</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Put it together: Student
+                  Records app</a></li>
+              <li><span class="n">&ndash;</span><a href="DBMS Lab_ Python, PostgreSQL and GUI.html">Practice tasks and
+                  common errors</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===================== LAB 2 ===================== -->
+    <article class="part" id="lab2">
+      <div class="part-head">
+        <div class="part-num">L2</div>
+        <div>
+          <p class="part-label">Lab 2 &middot; Streamlit web frontend</p>
+          <h3><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Web Frontend with Streamlit</a></h3>
+          <p class="part-desc">Turn your PostgreSQL database into a live web application with Streamlit &mdash; no HTML
+            or JavaScript required. Covers widgets, data display, search, full CRUD forms, multi-table JOINs, and a
+            login page.</p>
+          <div class="chips">
+            <span class="chip">Streamlit</span>
+            <span class="chip">Web forms</span>
+            <span class="chip">DataFrames</span>
+            <span class="chip">JOIN queries</span>
+            <span class="chip">Session state</span>
+            <span class="chip">Login page</span>
+          </div>
+          <a class="btn" href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Start Lab 2 &rarr;</a>
+          <span class="meta">7 steps &middot; Python 3 &middot; Streamlit</span>
+        </div>
+      </div>
+      <div class="part-body">
+        <h4>Steps</h4>
+        <div class="toc-cols">
+          <div class="group">
+            <div class="group-title">Getting started</div>
+            <ol class="chapters">
+              <li><span class="n">&ndash;</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Why
+                  Streamlit?</a></li>
+              <li><span class="n">&ndash;</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Setup</a>
+              </li>
+              <li><span class="n">&ndash;</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">The one idea
+                  to understand first</a></li>
+              <li><span class="n">1</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Hello, web
+                  page</a></li>
+              <li><span class="n">2</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">The widgets you
+                  will use</a></li>
+              <li><span class="n">3</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Show database rows
+                  on a web page</a></li>
+            </ol>
+          </div>
+          <div class="group">
+            <div class="group-title">Full app</div>
+            <ol class="chapters">
+              <li><span class="n">4</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Add a student with
+                  a form</a></li>
+              <li><span class="n">5</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">The full app:
+                  view, search, add, edit, delete</a></li>
+              <li><span class="n">6</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Upgrade: a second
+                  table and a JOIN</a></li>
+              <li><span class="n">7</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Upgrade: a login
+                  page</a></li>
+              <li><span class="n">&ndash;</span><a href="DBMS Lab Part 2_ Web Frontend with Streamlit.html">Practice
+                  tasks and common errors</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===================== LAB 3 ===================== -->
+    <article class="part" id="lab3">
+      <div class="part-head">
+        <div class="part-num">L3</div>
+        <div>
+          <p class="part-label">Lab 3 &middot; Node.js + JavaScript frontend</p>
+          <h3><a href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Node.js, PostgreSQL and a
+              JavaScript Frontend</a></h3>
+          <p class="part-desc">Build a full-stack web application in JavaScript: a Node.js REST API backed by
+            PostgreSQL, with a plain HTML/CSS/JS frontend that calls the API with fetch. Covers the entire stack from
+            driver to DOM.</p>
+          <div class="chips">
+            <span class="chip">Node.js</span>
+            <span class="chip">pg driver</span>
+            <span class="chip">REST API</span>
+            <span class="chip">fetch / JSON</span>
+            <span class="chip">HTML/CSS/JS UI</span>
+            <span class="chip">Full-stack CRUD</span>
+          </div>
+          <a class="btn" href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Start Lab 3
+            &rarr;</a>
+          <span class="meta">8 steps &middot; Node.js &middot; JavaScript</span>
+        </div>
+      </div>
+      <div class="part-body">
+        <h4>Steps</h4>
+        <div class="toc-cols">
+          <div class="group">
+            <div class="group-title">Database &amp; server</div>
+            <ol class="chapters">
+              <li><span class="n">&ndash;</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Setup</a></li>
+              <li><span class="n">&ndash;</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">JavaScript you need
+                  first</a></li>
+              <li><span class="n">1</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Connect to your
+                  database</a></li>
+              <li><span class="n">2</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Create the table</a></li>
+              <li><span class="n">3</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Insert rows safely</a></li>
+              <li><span class="n">4</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Read data with SELECT</a>
+              </li>
+              <li><span class="n">5</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Update and delete</a></li>
+            </ol>
+          </div>
+          <div class="group">
+            <div class="group-title">API &amp; frontend</div>
+            <ol class="chapters">
+              <li><span class="n">6</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Your first web server</a>
+              </li>
+              <li><span class="n">7</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Build the API</a></li>
+              <li><span class="n">8</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Build the web page</a></li>
+              <li><span class="n">&ndash;</span><a
+                  href="DBMS Lab Part 3_ Node.js, PostgreSQL and a JavaScript Frontend.html">Practice tasks and common
+                  errors</a></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </article>
+    <h2 class="section-title">Quick revision</h2>
+    <p class="section-sub">Jump straight to the pages worth revisiting the night before an exam.</p>
+    <div class="quick">
+      <a href="er-diagram.html#ch14"><span class="qs">Section 1</span><span class="qt">ER symbol reference</span><span
+          class="qd">Every shape, line, and marking on one page.</span></a>
+      <a href="er-diagram.html#ch13"><span class="qs">Section 1</span><span class="qt">ER diagram mistakes</span><span
+          class="qd">The 15 errors that cost the most marks.</span></a>
+      <a href="er-diagram.html#ch11"><span class="qs">Section 1</span><span class="qt">Which EER construct?</span><span
+          class="qd">Specialization, generalization, aggregation, or category.</span></a>
+      <a href="er-to-relational.html#ch3"><span class="qs">Section 2</span><span class="qt">Mapping master
+          map</span><span class="qd">Every ER component and what it becomes.</span></a>
+      <a href="er-to-relational.html#ch20"><span class="qs">Section 2</span><span class="qt">Counting tables</span><span
+          class="qd">The minimum-tables method, with practice.</span></a>
+      <a href="er-to-relational.html#ch23"><span class="qs">Section 2</span><span class="qt">Mapping cheat
+          sheet</span><span class="qd">One table of rules, plus solved problems.</span></a>
     </div>
-  </article>
 
-  <h2 class="section-title">Quick revision</h2>
-  <p class="section-sub">Jump straight to the pages worth revisiting the night before an exam.</p>
-  <div class="quick">
-    <a href="er-diagram.html#ch14"><span class="qs">Section 1</span><span class="qt">ER symbol reference</span><span class="qd">Every shape, line, and marking on one page.</span></a>
-    <a href="er-diagram.html#ch13"><span class="qs">Section 1</span><span class="qt">ER diagram mistakes</span><span class="qd">The 15 errors that cost the most marks.</span></a>
-    <a href="er-diagram.html#ch11"><span class="qs">Section 1</span><span class="qt">Which EER construct?</span><span class="qd">Specialization, generalization, aggregation, or category.</span></a>
-    <a href="er-to-relational.html#ch3"><span class="qs">Section 2</span><span class="qt">Mapping master map</span><span class="qd">Every ER component and what it becomes.</span></a>
-    <a href="er-to-relational.html#ch20"><span class="qs">Section 2</span><span class="qt">Counting tables</span><span class="qd">The minimum-tables method, with practice.</span></a>
-    <a href="er-to-relational.html#ch23"><span class="qs">Section 2</span><span class="qt">Mapping cheat sheet</span><span class="qd">One table of rules, plus solved problems.</span></a>
-  </div>
+    <div class="how">
+      <strong class="l">How to study with this handbook</strong>
+      <ol>
+        <li>Read Section 1 in order, and draw every example yourself before looking at the figure.</li>
+        <li>Try the Section 1 practice problems. Keep your diagrams, because Section 2 converts them.</li>
+        <li>Read Section 2, then map your own practice diagrams and check them against the solutions.</li>
+        <li>Before an exam, revise from the quick-revision cards above and the two mistakes chapters.</li>
+      </ol>
+    </div>
 
-  <div class="how">
-    <strong class="l">How to study with this handbook</strong>
-    <ol>
-      <li>Read Section 1 in order, and draw every example yourself before looking at the figure.</li>
-      <li>Try the Section 1 practice problems. Keep your diagrams, because Section 2 converts them.</li>
-      <li>Read Section 2, then map your own practice diagrams and check them against the solutions.</li>
-      <li>Before an exam, revise from the quick-revision cards above and the two mistakes chapters.</li>
-    </ol>
-  </div>
+  </main>
 
-</main>
-
-<footer>MC 212 &middot; Database Management Systems &middot; Study handbook</footer>
+  <footer>MC 212 &middot; Database Management Systems &middot; Study handbook</footer>
 
 </body>
+
 </html>
